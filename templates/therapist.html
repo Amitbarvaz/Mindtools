@@ -1,0 +1,314 @@
+{% load static i18n compress %}
+{% get_current_language as lang %}
+{% get_current_language_bidi as lang_dir %}
+
+<!DOCTYPE html>
+<html lang="{{ lang }}" ng-app="therapistapp" class="h-100" dir="{% if lang_dir %} rtl {% else %} ltr {% endif %}"
+      style="direction: {% if lang_dir %} rtl {% else %} ltr {% endif %}">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Mind Tools</title>
+
+    <!-- Bootstrap core CSS -->
+    {% compress css %}
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+    {% if lang_dir %}
+        <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/main-mobile.css' %}">
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{% static 'css/main_en.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/main-mobile_en.css' %}">
+    {% endif %}
+    {% endcompress %}
+
+    <!-- Custom styles for this template -->
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    {% compress css %}
+    <link href="{% static 'lib/ng-emoji-picker/css/emoji.css' %}" rel="stylesheet">
+    <link href="{% static 'lib/ng-emoji-picker/css/nanoscroller.css' %}" rel="stylesheet">
+    {% endcompress %}
+    <script src="{% static 'lib/angular/angular.min.js' %}"></script>
+</head>
+
+<body>
+
+<div class="therapist-header">
+    <div class="therapist-header-title">Mindtools</div>
+    <div class="therapist-header-user header-user">
+        <div class="header-user-text">{{ email }}</div>
+        <div class="header-user-arrow"></div>
+    </div>
+
+    <div class="header-user-menu therapist-header-user-menu">
+    <a class="header-user-menu-item" href="{% url 'password_change' %}">
+        <div class="header-user-menu-item-text">{% trans 'Change Password' %}</div>
+        <div class="header-user-menu-item-icon">
+        </div>
+    </a>
+    <a class="header-user-menu-item" href="{% url 'logout' %}">
+        <div class="header-user-menu-item-text">{% trans 'Logout' %}</div>
+        <div class="header-user-menu-item-icon">
+            <img class="header-user-menu-item-img" src="{% static 'img/exit.svg' %}"/>
+            <img class="header-user-menu-item-img-mobile" src="{% static 'img/exit-white.svg' %}"/>
+        </div>
+    </a>
+    </div>
+
+</div>
+
+<!-- Page Content -->
+<div class="therapist-container" ng-cloak ng-controller="therapist">
+    <div class="therapist-back-btn" ng-hide="display_show_table" ng-click="showAllUsers()">
+        {% trans 'Back to users list' %}
+    </div>
+    <div id="users-table" ng-show="display_show_table">
+        <table class="table therapist-users-table">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">{% trans 'Join' %}</th>
+                <th scope="col">{% trans 'Last Login' %}</th>
+                <th scope="col">{% trans 'Program Phase' %}</th>
+                <th scope="col">{% trans 'Current Page' %}</th>
+                <th scope="col">{% trans 'Total Time' %}</th>
+                <th scope="col">{% trans 'Distinct Days (Login)' %}</th>
+                <th scope="col">{% trans 'Login Count' %}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="u in users">
+                {% verbatim %}
+                <th scope="row">
+                    <span class="text-nowrap"><i ng-if="u.has_notification" class="fa fa-exclamation-circle mr-1"></i> <i ng-if="u.has_messages" class="fa fa-envelope mr-1"></i>
+                        <a href="#" ng-click="userstat(u.id)">{{u.id}}</a></span>
+                </th>
+                <td>{{u.start_time}}</td>
+                <td>{{u.last_login}}</td>
+                <td>{{u.program_phase}}</td>
+                <td>{{u.current_page}}</td>
+                <td>{{u.total_time}}</td>
+                <td>{{u.distinct_days}}</td>
+                <td>{{u.login_count}}</td>
+                {% endverbatim %}
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="user-section" ng-hide="display_show_table">
+
+        <div class="patient-main">
+            <div class="patient-name">{% trans 'Patient' %}</div>
+            <div class="patient-main-info-boxes">
+                <div class="patient-main-info-box">
+                    <div class="patient-main-info-title">{% trans 'User Id' %}</div>
+                    {% verbatim %}
+                    <div class="patient-main-info-data">{{ user_id }}</div>
+                    {% endverbatim %}
+                </div>
+            </div>
+            <div class="gold-variable-btn" ng-hide="hideShowMoreButton" ng-click="hideShowMoreButton = true">{% trans 'See more' %}</div>
+            <div class="gold-variable-btn" ng-hide="!hideShowMoreButton" ng-click="hideShowMoreButton = false">{% trans 'Hide' %}</div>
+            {% verbatim %}
+            <hr class="patient-separator">
+            <div class="patient-gold-variables">
+                <div class="patient-gold-variable" ng-repeat="variable in variables | filter: {is_primary: true}">
+                    {{variable.display_name}}: {{ variable.value }}
+                </div>
+                <div id="more-gold-variable" ng-show="hideShowMoreButton">
+                    <div class="patient-gold-variable" ng-repeat="variable in variables | filter: {is_primary: false}">
+                        {{variable.display_name}}: {{ variable.value }}
+                    </div>
+                </div>
+            </div>
+
+
+            {% endverbatim %}
+        </div>
+        <div class="patient-extend-data">
+        <nav class="therapist-nav">
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <a class="nav-item nav-link active" id="nav-user-pages-tab" data-toggle="tab" href="#nav-user-pages"
+                   role="tab"
+                   aria-controls="nav-home" aria-selected="true" ng-click="stop_chat()">{% trans 'Forms' %}</a>
+                <a class="nav-item nav-link" id="nav-transformation-tab" data-toggle="tab" href="#nav-transformation"
+                   role="tab"
+                   aria-controls="nav-transformation" aria-selected="false" ng-click="stop_chat()">{% trans 'Transformations' %}</a>
+                <a class="nav-item nav-link" id="nav-edit-vars-tab" data-toggle="tab" href="#nav-edit-vars" role="tab"
+                   aria-controls="nav-edit-vars" aria-selected="false" ng-click="stop_chat()">{% trans 'Edit Variables' %}</a>
+                <a class="nav-item nav-link" id="nav-notifications-tab" data-toggle="tab" href="#nav-notifications" role="tab"
+                   aria-controls="nav-notifications" aria-selected="false" ng-click="stop_chat()">{% trans 'Notifications' %} <i ng-if="notifications_icon" class="fa fa-exclamation-circle"></i> </a>
+                <a class="nav-item nav-link" id="nav-messages-tab" data-toggle="tab" href="#nav-messages" role="tab"
+                   aria-controls="nav-messages" aria-selected="false" ng-click="start_chat()" ng-if="allow_chat">{% trans 'Messages' %} <i ng-if="has_messages" class="fa fa-exclamation-circle"></i> </a>
+                <a class="nav-item nav-link" id="nav-notes-tab" data-toggle="tab" href="#nav-notes" role="tab"
+                   aria-controls="nav-notes" aria-selected="false" ng-click="stop_chat()">{% trans 'Notes' %}</a>
+            </div>
+        </nav>
+        <div class="tab-content" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="nav-user-pages" role="tabpanel" aria-labelledby="nav-user-pages">
+                <div class="container mt-2" id="user_pages_table">
+                    <div class="row" ng-repeat="page in user_pages">
+                        {% verbatim %}
+                        <div class="col-md-auto">{{ page.name }}</div>
+                        <div class="col-12">
+                            <page-variables-table variables="page.variables"/>
+                        </div>
+                        {% endverbatim %}
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="nav-transformation" role="tabpanel" aria-labelledby="nav-transformation-tab">
+                <div class="container mt-2" id="user_transofrmations">
+                    <div class="row justify-content-center">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label for="arrayVariableSelect">Main variables</label>
+                                <select class="form-control" id="arrayVariableSelect"
+                                        ng-model="selectedTransformationVariable"
+                                        ng-change="updateTransformationTable()">
+                                    {% verbatim %}
+                                    <option value="{{ variable.name }}" ng-repeat="variable in variables">
+                                        {{ variable.display_name }}
+                                    </option>
+                                    {% endverbatim %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center" ng-if="transofrmationTable">
+                        <div class="col-6">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Value</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-repeat="valueInDate in transofrmationTable">
+                                    {% verbatim %}
+                                    <th scope="row">{{ valueInDate.time }}</th>
+                                    <td>{{ valueInDate.value }}</td>
+                                    {% endverbatim %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="nav-edit-vars" role="tabpanel" aria-labelledby="nav-edit-vars-tab">
+                <h2>{% trans 'Edit Variables' %}</h2>
+                <form ng-submit="postVariables()">
+                    {% csrf_token %}
+                    <div ng-repeat="field in variablesForm.fields">
+                        <div class="form-group" ng-if="field.options.length == 0">
+                            {% verbatim %}
+                            <label for="{{field.name}}">{{ field.display }}</label>
+                            <input type="text" class="form-control" id="{{field.name}}"
+                                   placeholder="" ng-model="variablesForm.data[field.name]">
+                            {% endverbatim %}
+                        </div>
+                        <div class="form-group" ng-if="field.options.length > 0">
+                                {% verbatim %}
+                                <label for="{{field.name}}">{{ field.display }}</label>
+                                <select class="form-control" id="{{field.name}}" ng-model="variablesForm.data[field.name]">
+                                    <option value="{{ option }}" ng-repeat="option in field.options">
+                                        {{ option }}
+                                    </option>
+                                </select>
+                                {% endverbatim %}
+                        </div>
+                    </div>
+                    <button>Submit</button>
+                </form>
+            </div>
+            <div class="tab-pane fade" id="nav-notifications" role="tabpanel" aria-labelledby="nav-notifications-tab">
+                <h2>{% trans 'Notifications' %}</h2>
+                <div class="list-group">
+                  <div class="list-group-item list-group-item-action flex-column align-items-start"
+                     ng-class="!notification.is_read ? ['font-weight-bold bg-light', 'pointer-cursor'] : ''"
+                     ng-repeat="notification in notifications"
+                     ng-click="markNotificationRead(notification.id)">
+                      {% verbatim %}
+                      <div class="d-flex w-100 justify-content-between">
+                        <p class="mb-1">{{ notification.message }}</p>
+                          <small ng-class="!notification.is_read ? 'font-weight-bold' : ''">{{ notification.time_display }}</small>
+                      </div>
+
+                      <div ng-if="!notification.is_read" class="d-flex w-100 justify-content-end">
+                        <small class="font-weight-bold">mark as read</small>
+                      </div>
+                      {% endverbatim %}
+                  </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="nav-messages" role="tabpanel" aria-labelledby="nav-messages-tab" dir="ltr" ng-if="allow_chat">
+                <div class="chat-container">
+                {% include 'chat.html' %}
+                </div>
+            </div>
+            <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
+                <h2>{% trans 'Notes' %}</h2>
+                <div class="notes-box">
+                    <div class="note" ng-repeat="note in notes">
+                        {% verbatim %}
+                        <span class="time-date"> {{ convertTime(note.time) }} </span>
+                        <div dir="auto">{{ note.message }}</div>
+                        {% endverbatim %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>{% trans 'New Note' %}</label>
+                    <textarea ng-model="new_note" rows="3" class="form-control"></textarea>
+                </div>
+                <button type="button" class="btn btn-primary" ng-click="addNote()">{% trans 'Add note' %}</button>
+            </div>
+        </div>
+        </div>
+        <div class="footer-spacer"></div>
+    </div>
+
+</div>
+<div id="idle" ng-app="idle" ng-controller="idle">{% include 'idle_popup.html' %}</div>
+<!-- /.container -->
+
+<!-- Footer -->
+
+<!-- Bootstrap core JavaScript -->
+<script src="{% static 'lib/moment/min/moment.min.js' %}"></script>
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/topbar-menu.js' %}"></script>
+<script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>
+{% compress js %}
+<script src="{% static 'js/chat.js' %}"></script>
+<script src="{% static 'js/serafin.js' %}"></script>
+{% endcompress %}
+<script src="{% static 'lib/ng-emoji-picker/js/nanoscroller.min.js' %}"></script>
+<script src="{% static 'lib/ng-emoji-picker/js/tether.min.js' %}"></script>
+<script src="{% static 'lib/ng-emoji-picker/js/config.js' %}"></script>
+<script src="{% static 'lib/ng-emoji-picker/js/util.js' %}"></script>
+<script src="{% static 'lib/ng-emoji-picker/js/jquery.emojiarea.js' %}"></script>
+<script src="{% static 'lib/ng-emoji-picker/js/emoji-picker.js' %}"></script>
+<script src="{% static 'js/WebAudioRecorder.min.js' %}"></script>
+<script src="{% static 'lib/ng-idle/angular-idle.js' %}"></script>
+
+<script>
+    var api = '{{ api|safe }}';
+    var csrf_token = '{{ csrf_token }}';
+    var chatApi = '{{ chat_api|safe }}';
+    angular.bootstrap(document.getElementById("idle"), ['idle']);
+</script>
+
+</body>
+
+</html>

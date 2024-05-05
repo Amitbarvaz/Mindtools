@@ -1,0 +1,19 @@
+{% load i18n %}
+<div id="content" class="content" ng-app="content" ng-controller="contentArray">
+
+    <textarea id="id_data" name="data" class="data ng-hide">{% verbatim %}{{ data }}{% endverbatim %}</textarea>
+
+    <div class="pagelet">
+
+        <h3 class="title">SMS</h3>
+
+        <div class="sms">
+            {% verbatim %}{{ data[0].content.length }}{% endverbatim %} {% trans 'characters used' %}
+            <textarea class="input-xlarge" ng-model="data[0].content"></textarea>
+            <div><input type="checkbox" ng-model="data[1].content"> Is Whatsapp?</div>
+        </div>
+    </div>
+    <script>
+        var initData = {{ value|safe }};
+    </script>
+</div>

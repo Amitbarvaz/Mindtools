@@ -1,0 +1,232 @@
+{% load i18n %}
+<div id="plumbing" class="plumbing" ng-app="plumbing" ng-controller="graph"
+     ng-mousedown="startScrolling($event)"
+     ng-mouseup="stopScrolling()"
+     ng-mouseenter="stopScrolling()"
+     ng-mouseleave="stopScrolling()"
+     ng-blur="stopScrolling()"
+     ng-mousemove="scroll($event)">
+
+    <div class="toolbox">
+        <div class="btn page" ng-click="addNode('page')" id="lookup_{% verbatim %}{{ current_noderef }}{% endverbatim %}">{% trans '+ Page' %}</div>
+        <div class="btn session" ng-click="addNode('session')" id="lookup_{% verbatim %}{{ current_noderef }}{% endverbatim %}">{% trans '+ Session' %}</div>
+        <div class="btn session" ng-click="addNode('background_session')" id="lookup_{% verbatim %}{{ current_noderef }}{% endverbatim %}">{% trans '+ Background Session' %}</div>
+        <div class="btn expression" ng-click="addNode('expression')" id="lookup_{% verbatim %}{{ current_noderef }}{% endverbatim %}">{% trans '+ Expression' %}</div>
+        <div class="btn" ng-click="addNode('email')" id="lookup_{% verbatim %}{{ current_noderef }}{% endverbatim %}">{% trans '+ Email' %}</div>
+        <div class="btn" ng-click="addNode('sms')" id="lookup_{% verbatim %}{{ current_noderef }}{% endverbatim %}">{% trans '+ Sms' %}</div>
+        <div class="btn" ng-click="addNode('delay')" id="lookup_{% verbatim %}{{ current_noderef }}{% endverbatim %}">{% trans '+ Delay' %}</div>
+        <div class="btn" ng-click="addNode('register')" id="lookup_{% verbatim %}{{ current_noderef }}{% endverbatim %}">{% trans '+ Register' %}</div>
+        <div class="btn" ng-click="addNode('enroll')" id="lookup_{% verbatim %}{{ current_noderef }}{% endverbatim %}">{% trans '+ Enroll' %}</div>
+        <div class="btn" ng-click="addNode('leave')" id="lookup_{% verbatim %}{{ current_noderef }}{% endverbatim %}">{% trans '+ Leave' %}</div>
+        <div class="btn" ng-click="addNode('wait')" id="lookup_{% verbatim %}{{ current_noderef }}{% endverbatim %}">{% trans '+ Wait' %}</div>
+        <div class="btn" ng-click="addNode('tool')" id="lookup_{% verbatim %}{{ current_noderef }}{% endverbatim %}">{% trans '+ Tool' %}</div>
+        <div class="btn" ng-click="addNode('therapist_notification')" id="lookup_{% verbatim %}{{ current_noderef }}{% endverbatim %}">{% trans '+ Therapist Notification' %}</div>
+        <div class="btn" ng-click="addNode('end')" id="lookup_{% verbatim %}{{ current_noderef }}{% endverbatim %}">{% trans '+ End' %}</div>
+    </div>
+
+    <div class="floatbox"></div>
+
+    <div class="node box" ng-class="node.type" ng-repeat="node in data.nodes track by node.id" ng-style="getMetrics(node)" ng-model="data.nodes">
+        <span ng-if="node.type == 'email'">
+            <i class="fa fa-envelope-o icon-alpha5"></i>
+        </span>
+        <span ng-if="node.type == 'sms'">
+            <i class="fa fa-comment icon-alpha5"></i>
+        </span>
+        <span ng-if="node.type == 'delay'">
+            <i class="fa fa-clock-o icon-alpha5"></i>
+        </span>
+        <span ng-if="node.type == 'session'">
+            <i class="fa fa-tasks icon-alpha5"></i>
+        </span>
+        <span ng-if="node.type == 'background_session'">
+            <i class="fa fa-cog icon-alpha5"></i>
+        </span>
+        <span ng-if="node.type == 'expression'">
+            <i class="fa fa-exclamation-circle icon-alpha5"></i>
+        </span>
+        <span ng-if="node.type == 'register'">
+            <i class="fa fa-user icon-alpha5"></i>
+        </span>
+        <span ng-if="node.type == 'enroll'">
+            <i class="fa facheck-circle icon-alpha5"></i>
+        </span>
+        <span ng-if="node.type == 'leave'">
+            <i class="fa fa-times icon-alpha5"></i>
+        </span>
+        <span ng-if="node.type == 'wait'">
+            <i class="fa fa-globe icon-alpha5"></i>
+        </span>
+        <span ng-if="node.type == 'tool'">
+            <i class="fa fa-cog icon-alpha5"></i>
+        </span>
+        <span ng-if="node.type == 'therapist_notification'">
+            <i class="fa fa-bell icon-alpha5"></i>
+        </span>
+        <span ng-if="node.type == 'end'">
+            <i class="fa fa-hand-paper-o icon-alpha5"></i>
+        </span>
+
+
+        {% verbatim %}
+        <div class="id">
+            {{ node.id }}
+        </div>
+        {{ node.title }}
+        <span ng-if="node.type == 'delay'">
+            t + {{ node.delay.variable ? "$"+node.delay.variable : node.delay.number }} {{ node.delay.unit }}
+        </span>
+        <span ng-if="node.type == 'expression'">
+            {{ node.variable_name }} =
+            <div class="indent">
+                {{ node.expression }}
+            </div>
+        </span>
+        <span ng-if="node.type == 'register'">
+            {% endverbatim %}{% trans 'Register' %}{% verbatim %}
+        </span>
+        <span ng-if="node.type == 'enroll'">
+            {% endverbatim %}{% trans 'Enroll' %}{% verbatim %} {{ node.start_time }}
+        </span>
+        <span ng-if="node.type == 'leave'">
+            {% endverbatim %}{% trans 'Leave' %}{% verbatim %}
+        </span>
+        <span ng-if="node.type == 'wait'">
+            {% endverbatim %}{% trans 'Wait' %}{% verbatim %}
+        </span>
+        <span ng-if="node.type == 'tool'">
+            {% endverbatim %}{% trans 'Tool' %}{% verbatim %}
+        </span>
+        <span ng-if="node.type == 'therapist_notification'">
+            {% endverbatim %}{% trans 'Therapist Notification' %}{% verbatim %}
+        </span>
+        <span ng-if="node.type == 'end'">
+            {% endverbatim %}{% trans 'End' %}{% verbatim %}
+        </span>
+        <div class="ep"></div>
+        <div class="delete" ng-click="deleteNode($index)" ng-hide="node.id == 0">×</div>
+        <input type="hidden" class="noderef" id="noderef_{{ node.id }}" value="{{ node.ref_id }}">
+        {% endverbatim %}
+
+        <div ng-if="node.type == 'delay'" class="delay settings box" ng-show="showSettings == $index">
+            <div class="close" ng-click="close()">×</div>
+            <label>{% trans "Delay value" %}</label>
+            <input type="number" placeholder="{% trans 'Number' %}" ng-model="node.delay.number">
+            <label>{% trans "Variable name" %}</label>
+            {% verbatim %}
+            <select ng-model="node.delay.variable">
+              <option value=""></option>
+              <option ng-repeat="variable in variables" ng-value="variable.name" title="{{ variable.admin_note }}">{{ variable.name }}</option>
+            </select>
+            {% endverbatim %}
+            <label>{% trans "Unit" %}</label>
+            <select ng-model="node.delay.unit">
+                <option value="seconds"> {% trans 'seconds' %} </option>
+                <option value="minutes"> {% trans 'minutes' %} </option>
+                <option value="hours"> {% trans 'hours' %} </option>
+            </select>
+        </div>
+
+        <div ng-if="node.type == 'expression'" class="expression settings box" ng-show="showSettings == $index">
+            <div class="close" ng-click="close()">×</div>
+            <label>{% trans "Variable name" %}</label>
+            {% verbatim %}
+            <select opt-title ng-model="node.variable_name">
+                <option ng-repeat="variable in variables" ng-value="variable.name" title="{{ variable.admin_note }}">{{ variable.name }}</option>
+            </select>
+            {% endverbatim %}
+            <label>{% trans 'Expression' %}</label>
+            <string-expression
+                ng-model="node.expression"
+                placeholder="{% trans "Start writing..." %}"
+                header-title="{% trans "Preview" %}"
+                popover-placement="right"
+                popover-title="{% trans "Serafin Expression Syntax" %}"
+                popover-template="template/expression-syntax.html"
+                url="/api/system/evaluate-expression/"
+                ng-cloak>
+            </string-expression>
+            {% include "expression_syntax.html" %}
+        </div>
+
+        <div ng-if="node.type == 'enroll'" class="enroll settings box" ng-show="showSettings == $index">
+            <div class="close" ng-click="close()">×</div>
+            <label>{% trans 'Start time (leave blank for immediate)' %}</label>
+            <input type="text" ng-model="node.start_time" placeholder="{% trans 'E.g. 06:00' %}">
+        </div>
+
+        <div ng-if="node.type == 'tool'" class="tool settings box" ng-show="showSettings == $index">
+            <div class="close" ng-click="close()">×</div>
+            <div class="filer mt-2">
+                {{ file_widget|safe }}
+            </div>
+            <div class="field-data">
+                <label>{% trans 'Title' %}</label>
+                <input type="text" ng-model="node.tool.title">
+            </div>
+            <label>{% trans "Type" %}</label>
+            <select ng-model="node.tool.type">
+                <option value="file"> {% trans 'file' %} </option>
+                <option value="audio"> {% trans 'audio' %} </option>
+                <option value="video"> {% trans 'video' %} </option>
+            </select>
+        </div>
+
+        <div ng-if="node.type == 'therapist_notification'" class="therapist_notification settings box" ng-show="showSettings == $index">
+            <div class="close" ng-click="close()">×</div>
+            <label>{% trans "Message" %}</label>
+            <input type="text" placeholder="{% trans "Start writing..." %}" ng-model="node.message">
+        </div>
+
+    </div>
+
+    <div class="edge" ng-repeat="edge in data.edges track by edge.id" ng-model="data.edges">
+
+        <div class="overlay box">
+            {% verbatim %}
+            <div class="summary" ng-if="edge.expression">
+                {{ edge.expression }}
+            </div>
+            {% endverbatim %}
+
+            <div class="summary" ng-show="!edge.expression && !edge.conditions.length">
+                {% trans 'Pass' %}
+            </div>
+            <div class="delete" ng-click="deleteEdge($index)">×</div>
+        </div>
+
+        <div class="conditions box" ng-show="showConditions == $index">
+            <div class="close" ng-click="close()">×</div>
+            <label>{% trans 'Expression' %}</label>
+            <string-expression
+                ng-model="edge.expression"
+                placeholder="{% trans "Start writing..." %}"
+                header-title="{% trans "Preview" %}"
+                popover-placement="right"
+                popover-title="{% trans "Serafin Expression Syntax" %}"
+                popover-template="template/expression-syntax.html"
+                url="/api/system/evaluate-expression/"
+                ng-cloak>
+            </string-expression>
+            {% include "expression_syntax.html" %}
+        </div>
+
+    </div>
+
+    <textarea name="data" class="data ng-hide">{% verbatim %}{{ data }}{% endverbatim %}</textarea>
+
+    <div class="scrollmarker">
+        <i class="icon-move icon-alpha5"></i>
+    </div>
+</div>
+
+<script>
+    var initData = {{ value|safe }};
+    var adminUrl = '{{ admin_url }}';
+    var nodeApiUrl = '{{ node_api }}';
+    var reservedVars = {{ reserved_vars|default:'undefined'|safe }};
+    var filerApi = '{{ filer_api }}';
+    $(function () {
+        $('[data-toggle="popover"]').popover();
+    });
+</script>

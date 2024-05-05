@@ -1,0 +1,18 @@
+<!doctype html>
+{% load i18n %}
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <style>
+    </style>
+</head>
+<body>
+<div dir="auto">
+    <p>{% blocktrans %}Hello,{% endblocktrans %}</p>
+    <p>{% blocktrans %}You have a new message from the program’s supporter (press the link to see it):{% endblocktrans %}</p>
+    <p>{{ my_therapist }}</p>
+    <p>{% trans 'Best wishes,' %}</p>
+    <p>{% trans 'The program team' %}</p>
+</div>
+</body>
+</html>

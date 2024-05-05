@@ -1,0 +1,313 @@
+{% load i18n %}
+
+{# Angular template #}
+<script type="text/ng-template" id="template/expression-variables.html">
+  {# Template for Expression variables using ment.io #}
+  <ul class="list-group variable-results">
+    <li mentio-menu-item="item" ng-repeat="item in items track by $index" class="list-group-item">
+      <i class="fa fa-question" ng-if="item.admin_note"
+          bootstrap-tooltip
+          tooltip-placement="left"
+          tooltip-title="item.admin_note"></i>
+      <span class="text-primary"
+            ng-bind-html="item.name | mentioHighlight:typedTerm:'menu-highlighted' | unsafe"></span>
+    </li>
+  </ul>
+</script>
+
+<script type="text/ng-template" id="template/expression-syntax.html">
+  {# Template for Expression widget syntax help popover #}
+  {# Using Bootstrap 2.3.x markup (bundled with Suit). #}
+  <p>{% blocktrans %}
+    The Serafin expression "mini-language" has a predefined set of operators
+    and functions which can be used to write simple expressions which can help
+    making decisions in user programs. Click the links below to expand syntax
+    descriptions.
+  {% endblocktrans %}</p>
+
+  <div class="accordion" id="syntax-collapse">
+    {# Grouping #}
+    <div class="card">
+        <div class="card-header" id="headingOne">
+          <h5 class="mb-0">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseGrouping" aria-expanded="true" aria-controls="collapseOne">
+              {% trans "Grouping" %}
+            </button>
+          </h5>
+        </div>
+
+        <div id="collapseGrouping" class="collapse" aria-labelledby="headingOne" data-parent="#syntax-collapse">
+          <div class="card-body">
+              <h5>{% trans "Grouping" %}</h5>
+              <p>{% trans "Expression can be grouped by putting them in parentheses." %}</p>
+              <h6>{% trans "Evaluation order" %}</h6>
+              {% blocktrans %}
+                <p>
+                  Normally, expressions will be evaluated left-to-right. For example the expression
+                  <span class="label label-info">1 + 1 * 2</span> will return the value 3,
+                  because it is evaluated like <span class="label label-info">1 + (1 * 2)</span>.
+                  By grouping expressions in parentheses you can control the evaluation order.
+                </p>
+                <dl class="dl-horizontal column35pst">
+                  <dt><span class="label label-info">1 + 1 * 2 = 3</span></dt>
+                  <dd>Because of default left-to-right evaluation. Evaluates like
+                    <span class="label label-info">1 + (1 * 2)</span></dd>
+                  <dt><span class="label label-info">(1 + 1) * 2 = 4</span></dt>
+                  <dd>Because it is explicitly grouped in parentheses.</dd>
+                </dl>
+              {% endblocktrans %}
+          </div>
+        </div>
+    </div>
+
+    {# Variables #}
+  <div class="card">
+        <div class="card-header" id="headingOne">
+          <h5 class="mb-0">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseVariables" aria-expanded="true" aria-controls="collapseOne">
+              {% trans "Variables" %}
+            </button>
+          </h5>
+        </div>
+
+        <div id="collapseVariables" class="collapse" aria-labelledby="headingOne" data-parent="#syntax-collapse">
+          <div class="card-body">
+              <h5>{% trans "Variables" %}</h5>
+              {% blocktrans %}
+                Variables must be prefixed with <span class="label label-info">$</span> like for
+                example <span class="label label-info">$MyLittlePony</span>. Any variable must
+                be pre-defined and will be looked up whenever encountered.
+                If a variable is not found for the current user (on evaluation time),
+                it is evaluated as <span class="label label-info">False</span>.
+              {% endblocktrans %}
+
+              <h6>{% trans "Reserved variables" %}</h6>
+              <p>{% trans "The following list of variables is reserved by the system" %}</p>
+              <ul>
+                <li><span class="label label-info">$current_day</span>
+                  {% trans "Returns the current weekday as number, where Monday is 1 and Sunday is 7" %}
+                </li>
+                <li><span class="label label-info">$current_time</span>
+                  {% trans "Returns the current time in ISO format, i.e. " %}
+                  <span class="label label-info">12:00:00</span>
+                </li>
+                <li><span class="label label-info">$current_date</span>
+                  {% trans "Returns the current date in ISO format, i.e. " %}
+                  <span class="label label-info">2015-05-01</span>
+                </li>
+                <li><span class="label label-info">$registered</span>
+                  {% trans "Returns True if the user has an active account" %}
+                </li>
+                <li><span class="label label-info">$enrolled</span>
+                  {% trans "Returns True if the user is enrolled with the current program" %}
+                </li>
+              </ul>
+          </div>
+        </div>
+    </div>
+
+    {# Operators #}
+    <div class="card">
+        <div class="card-header" id="headingOne">
+          <h5 class="mb-0">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOperators" aria-expanded="true" aria-controls="collapseOne">
+                {% trans "Operators" %}
+            </button>
+          </h5>
+        </div>
+
+        <div id="collapseOperators" class="collapse" aria-labelledby="headingOne" data-parent="#syntax-collapse">
+          <div class="card-body">
+              <h5>{% trans "Operators" %}</h5>
+              {% blocktrans %}
+                We have two set of expression types; simple arithmetic expressions
+                and boolean expressions. Expression evaluation between mixed types are not
+                supported, and will either throw an error or yield incorrect or unpredictable results.
+              {% endblocktrans %}
+
+              <h6>{% trans "Arithmetic operators" %}</h6>
+
+              <div class="span5">
+                <ul class="unstyled">
+                  <li>{% trans "Addition" %} <span class="right label label-info operator-label"> + </span></li>
+                  <li>{% trans "Subtraction" %} <span class="right label label-info operator-label"> - </span></li>
+                  <li>{% trans "Division" %} <span class="right label label-info operator-label"> / </span></li>
+                </ul>
+              </div>
+              <div class="span6">
+                <ul class="unstyled">
+                  <li>{% trans "Multiplication" %} <span class="right label label-info operator-label"> * </span></li>
+                  <li>{% trans "Factorisation" %} <span class="right label label-info operator-label"> ^ </span></li>
+                  <li>{% trans "Modulus" %} <span class="right label label-info operator-label"> % </span></li>
+                </ul>
+              </div>
+
+              <h6>{% trans "Boolean and comparison operators" %}</h6>
+
+              <div class="span5">
+                <ul class="unstyled">
+                  <li>{% trans "Equal" %}<span class="right label label-info operator-label"> == </span></li>
+                  <li>{% trans "Less than" %}<span class="right label label-info operator-label"> < </span></li>
+                  <li>{% trans "Greater than" %}<span class="right label label-info operator-label"> > </span></li>
+                  <li>{% trans "AND" %} <span class="right label label-info"> & </span></li>
+                </ul>
+              </div>
+              <div class="span6">
+                <ul class="unstyled">
+                  <li>{% trans "Contains" %} <span class="right label label-info operator-label"> in </span></li>
+                  <li>{% trans "Not equal" %}<span class="right label label-info operator-label"> != </span></li>
+                  <li>{% trans "Less or equal" %}<span class="right label label-info operator-label"> <= </span></li>
+                  <li>{% trans "Greater or equal" %} <span class="right label label-info operator-label"> >= </span></li>
+                  <li>{% trans "OR" %} <span class="right label label-info operator-label"> | </span></li>
+                </ul>
+              </div>
+
+              <p>
+                {% blocktrans %}
+                  Expressions evaluated using boolean or comparison operators will return either
+                  <span class="label label-info">true</span> or <span class="label label-info">false</span> value.
+                  For truth value testing, use the built-in <span class="label label-info">True</span> or
+                  <span class="label label-info">False</span>.
+                {% endblocktrans %}
+              </p>
+
+              <br/>
+              <ul>
+                <li><span class="label label-info">True == True</span> {% trans "Returns the value" %} true</li>
+                <li><span class="label label-info">(1 + 2) == (5 - 2)</span> {% trans "Returns the value" %} true</li>
+                <li><span class="label label-info">(True & False) | False</span> {% trans "Returns the value" %} false</li>
+              </ul>
+
+              <p>
+                {% blocktrans %}
+                  All falsey values; <span class="label label-info">False</span>,
+                  <span class="label label-info">None</span>, <span class="label label-info">$missing</span> variables,
+                  <span class="label label-info">0</span>, <span class="label label-info">[ ]</span>,
+                  <span class="label label-info">""</span> and <span class="label label-info">''</span>,
+                  are handled as <span class="label label-info">False</span>.
+                {% endblocktrans %}
+              </p>
+              <p>
+                {% blocktrans %}
+                  Time and date can be compared with boolean operators, either by using a
+                  <span class="label label-info">$myTimeOrDate</span> variable, or writing the time or date value
+                  directly. If writing the value directly, make sure it's passed as a
+                  <span class="label label-info">string value</span> (encapsulate the value in single or double quotes).
+                {% endblocktrans %}
+              </p>
+
+              <br/>
+              <ul>
+                <li><span class="label label-info">$missing == None</span> {% trans "Returns the value" %} true</li>
+                <li><span class="label label-info">$missing != ""</span> {% trans "Returns the value" %} false</li>
+                <li><span class="label label-info">0 == None</span> {% trans "Returns the value" %} true</li>
+                <li><span class="label label-info">False | True</span> {% trans "Returns the value" %} true</li>
+              </ul>
+
+          </div>
+        </div>
+    </div>
+
+    <!--
+    {# Functions #}
+    <div class="accordion-group">
+      <div class="accordion-heading">
+        <a class="accordion-toggle" data-toggle="collapse" data-parent="#syntax-collapse"
+           href="#Functions">
+          {% trans "Functions" %}
+        </a>
+      </div>
+      <div id="Functions" class="accordion-body collapse">
+        <div class="accordion-inner">
+          <h5>{% trans "Functions" %}</h5>
+          {% blocktrans %}
+            Some basic functions are supported. Functions are applied by passing a value or
+            an expression which returns a value to it.
+          {% endblocktrans %}
+          <h6>{% trans "Examples" %}</h6>
+          <ul>
+            <li><span class="label label-info">round(6.34)</span>{% trans "Returns the value" %} 6</li>
+            <li><span class="label label-info">sin(3 * (2^4)) + abs(9.23)</span>{% trans "Returns the value" %}
+              8.461745338676334
+            </li>
+          </ul>
+          <div class="span6">
+            <ul class="unstyled">
+              <li><a href="http://en.wikipedia.org/wiki/Law_of_sines" target="_blank">{% trans "Sine" %}</a>
+                <span class="right label label-info">sin</span>
+              </li>
+              <li><a href="http://en.wikipedia.org/wiki/Law_of_cosines" target="_blank">{% trans "Cosines" %}</a>
+                <span class="right label label-info">cos</span>
+              </li>
+              <li><a href="http://en.wikipedia.org/wiki/Law_of_tangents" target="_blank">{% trans "Tangents" %}</a>
+                <span class="right label label-info">tan</span>
+              </li>
+              <li><a href="http://en.wikipedia.org/wiki/Absolute_value" target="_blank">{% trans "Absolute value" %}</a>
+                <span class="right label label-info">abs</span>
+              </li>
+            </ul>
+          </div>
+          <div class="span5">
+            <ul class="unstyled">
+              <li><a href="http://en.wikipedia.org/wiki/Truncation" target="_blank">{% trans "Truncate" %}</a>
+                <span class="right label label-info">trunc</span>
+              </li>
+              <li><a href="http://en.wikipedia.org/wiki/Rounding" target="_blank">{% trans "Round" %}</a>
+                <span class="right label label-info">round</span>
+              </li>
+              <li>{% trans "Sign digit" %} <strong>*</strong><span class="right label label-info">sign</span></li>
+            </ul>
+          </div>
+
+          <div class="span12">
+            <p><strong>*</strong>
+              {% blocktrans %}
+                The <span class="label label-info">sign</span> function returns
+                <span class="label label-info">-1</span> if passed a negative value,
+                <span class="label label-info">0</span> if passed zero and
+                <span class="label label-info">1</span> if passed a positive value.
+              {% endblocktrans %}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Constants #}
+    <div class="accordion-group">
+      <div class="accordion-heading">
+        <a class="accordion-toggle" data-toggle="collapse" data-parent="#syntax-collapse"
+           href="#Constants">
+          {% trans "Constants" %}
+        </a>
+      </div>
+      <div id="Constants" class="accordion-body collapse">
+        <div class="accordion-inner">
+          <h5>{% trans "Constants" %}</h5>
+          {% trans "Supported constants are" %}
+          <a href="http://en.wikipedia.org/wiki/E_%28mathematical_constant%29"
+             _target="blank"><span class="label label-info">E (Euler's number)</span></a>
+          {% trans "and" %}
+          <a href="http://en.wikipedia.org/wiki/Pi" target="_blank"><span
+              class="label label-info">PI (π)</span></a>
+
+          <ul>
+            <li><span class="label label-info">E</span> {% trans "provides the mathematical constant" %} E
+              (2.718281... {% trans "to available precision" %})
+            </li>
+            <li><span class="label label-info">PI</span> {% trans "provides the mathematical constant" %} π
+              (3.141592... {% trans "to available precision" %})
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    -->
+
+  </div>
+
+  <div>
+    <a id="popover-close" class="right"
+       onclick=$("i.fa-question").popover('hide');>{% trans "Close" %}</a>
+  </div>
+</script>

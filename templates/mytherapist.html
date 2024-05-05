@@ -1,0 +1,94 @@
+{% load static i18n compress %}
+{% get_current_language as lang %}
+{% get_current_language_bidi as lang_dir %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Mind Tools</title>
+    {% compress css %}
+    {% if lang_dir %}
+        <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/main-mobile.css' %}">
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{% static 'css/main_en.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/main-mobile_en.css' %}">
+    {% endif %}
+    {% endcompress %}
+
+  <!-- Custom styles for this template -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+  {% compress css %}
+  <link href="{% static 'lib/ng-emoji-picker/css/emoji.css' %}" rel="stylesheet">
+  <link href="{% static 'lib/ng-emoji-picker/css/nanoscroller.css' %}" rel="stylesheet">
+  {% endcompress %}
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;500;700&display=swap" rel="stylesheet">
+  {% compress js %}
+  <script src="{% static 'lib/angular/angular.min.js' %}"></script>
+  <script src="{% static 'lib/ng-idle/angular-idle.js' %}"></script>
+  {% endcompress %}
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  {% include 'navbar.html' %}
+
+  <!-- Page Content -->
+  <div class="chat-container" ng-app="mytherapist" ng-cloak>
+
+    <!-- Jumbotron Header -->
+      {% include 'chat.html' %}
+    <!-- Page Features -->
+    <div>
+
+    </div>
+
+  </div>
+  <!-- /.container -->
+
+  <!-- Footer -->
+    <div class="footer">
+        Mindtools.io © All right reserved
+        <div id="idle" ng-app="idle" ng-controller="idle">{% include 'idle_popup.html' %}</div>
+    </div>
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="{% static 'lib/moment/min/moment.min.js' %}"></script>
+  <script src="{% static 'js/jquery.min.js' %}"></script>
+  <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'js/topbar-menu.js' %}"></script>
+  <script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>
+  {% compress js %}
+  <script src="{% static 'js/chat.js' %}"></script>
+  <script src="{% static 'js/serafin.js' %}"></script>
+  {% endcompress %}
+  <script src="{% static 'lib/ng-emoji-picker/js/nanoscroller.min.js' %}"></script>
+  <script src="{% static 'lib/ng-emoji-picker/js/tether.min.js' %}"></script>
+  <script src="{% static 'lib/ng-emoji-picker/js/config.js' %}"></script>
+  <script src="{% static 'lib/ng-emoji-picker/js/util.js' %}"></script>
+  <script src="{% static 'lib/ng-emoji-picker/js/jquery.emojiarea.js' %}"></script>
+  <script src="{% static 'lib/ng-emoji-picker/js/emoji-picker.js' %}"></script>
+  <script src="{% static 'js/WebAudioRecorder.min.js' %}"></script>
+<script>
+    var api = '{{ api|safe }}';
+    var csrf_token = '{{ csrf_token }}';
+    var chatApi = '{{ chat_api|safe }}';
+
+    window.onload = function () {
+        angular.element(document.getElementById('chat_component')).scope().load_messages();
+    }
+
+    angular.bootstrap(document.getElementById("idle"), ['idle']);
+</script>
+
+</body>
+
+</html>

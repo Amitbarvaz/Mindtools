@@ -1,0 +1,6 @@
+{
+  "directory": "staticfiles/lib",
+  "ignoredDependencies": [
+    "jquery"
+  ]  
+}

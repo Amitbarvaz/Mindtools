@@ -1,0 +1,22 @@
+{% load i18n staticfiles sitetree %}
+
+<div ng-controller="TopbarMenuController" ng-cloak>
+  <top-bar is-hover="false">
+      {% for item in sitetree_items %}
+      {# make sure this is the parent item #}
+      {% if forloop.first %}
+        <ul class="title-area">
+          <li class="name">
+            <a href="{{ item.url_resolved }}" title="{{ item.title_resolved }}">
+              <div class="logo">{{ item.title_resolved }}</div>
+            </a>
+          </li>
+          <li toggle-top-bar class="menu-icon"><a href="#"><span>{# Empty #}</span></a></li>
+        </ul>
+      {% endif %}
+      {# top menu items #}
+      <div style="display:none">{% trans "Register" %} {% trans "Account" %}</div>
+      {% sitetree_children of item for menu template "sitetree/topbar_navmenu/_0items.html" %}
+    {% endfor %}
+  </top-bar>
+</div>

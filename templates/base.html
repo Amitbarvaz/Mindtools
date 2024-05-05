@@ -1,0 +1,82 @@
+{% load i18n staticfiles sitetree %}
+
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE|default:'he' }}" ng-app="serafin">
+  {% load i18n %}
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>{% block title %}MindTools{% endblock %}</title>
+    {% block meta %}{% endblock %}
+    {% load staticfiles %}
+    {% load compress %}
+    {% compress css %}
+    <link rel="stylesheet" href="{% static 'lib/foundation/css/foundation.min.css' %}" />
+    {% if stylesheet %}
+    <link rel="stylesheet" href="{% static stylesheet %}" />
+    {% elif program.style %}
+    <link rel="stylesheet" href="{% static program.style %}" />
+    {% elif site.program.style %}
+    <link rel="stylesheet" href="{% static site.program.style %}" />
+    {% else %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    {% endif %}
+    <link rel="stylesheet" href="{% static 'css/extra.css' %}" />
+    {% block styles %}{% endblock %}
+    {% endcompress %}
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        {% comment %}{% sitetree_menu from "serafin_top_bar_menu" include "trunk, topmenu" template "sitetree/topbar_navmenu/navmenu.html" %}{% endcomment %}
+      </header>
+
+      <section class="messages">
+        {% for message in messages %}
+        <div class="message alert {{ message.tags }}" ng-hide="removed">
+          <button class="close" ng-click="removed = !removed">&times;</button>
+          <p>{{ message }}</p>
+        </div>
+        {% endfor %}
+      </section>
+
+      <section class="content">
+        {% block content %}{% endblock %}
+      </section>
+
+      <div class="push"></div>
+    </div>
+
+  <footer class="py-3 bg-dark mt-auto footer">
+    <div class="container">
+      <p class="m-0 text-center text-white">Copyright &copy; {% now 'Y' %} MindTools.io</p>
+    </div>
+    <!-- /.container -->
+  </footer>
+
+
+    {% compress js %}
+    <script src="{% static 'lib/angular/angular.min.js' %}"></script>
+    <script src="{% static 'lib/angular-foundation/mm-foundation-tpls.min.js' %}"></script>
+    <script src="{% static 'js/topbar-menu.js' %}"></script>
+    <script src="{% static 'js/serafin.js' %}"></script>
+    {% block scripts %}
+    <script>
+      var api = undefined;
+      var csrf_token = undefined;
+    </script>
+    {% endblock %}
+    {% endcompress %}
+    {% if settings.GOOGLE_ANALYTICS_ID and not settings.DEBUG %}
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', '{{ settings.GOOGLE_ANALYTICS_ID }}', 'auto');
+      ga('send', 'pageview');
+    </script>
+    {% endif %}
+  </body>
+</html>

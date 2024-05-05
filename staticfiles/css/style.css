@@ -1,0 +1,506 @@
+@import url(//brick.a.ssl.fastly.net/PT+Sans:700);
+
+html, body {
+    height: 100%;
+    font-size: 110%;
+}
+
+.wrapper {
+    min-height: 100%;
+    height: auto !important;
+    margin: 0 auto -45px;
+}
+
+.footer, .push {
+    height: 45px;
+    overflow: hidden;
+    clear: both;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'PT Sans', sans-serif;
+    font-weight: 700;
+    margin: 0 0 1rem;
+    line-height: 1.1;
+}
+
+h2 {
+    font-size: 1.75rem;
+}
+
+h3 {
+    font-size: 1.5rem;
+}
+
+h4 {
+    font-size: 1.25rem;
+}
+
+* + h1,
+* + h2,
+* + h3,
+* + h4 {
+    margin: 2rem 0 1rem;
+}
+
+blockquote {
+    position: relative;
+    left: 0;
+    width: auto;
+    height: auto;
+    padding: .5rem .75rem;
+    margin: 0 0 1.25rem 0;
+    background: #ddd;
+    border: none;
+}
+
+blockquote:after {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: -30px;
+    border-style: solid;
+    border-width: 0 30px 15px 0;
+    border-color: transparent #ddd;
+    display: block;
+    width: 0;
+    z-index: 1;
+}
+
+blockquote p:last-child {
+    margin: 0;
+}
+
+.messages {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 25%;
+}
+
+.button {
+    padding: .5rem 1rem;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    z-index: 500;
+    width: 100%;
+}
+
+header .logo {
+    font-family: 'PT Sans', sans-serif;
+    font-weight: 700;
+    font-size: 1.5em;
+    text-transform: uppercase;
+    padding: .25em .5em;
+}
+
+.page .logo {
+    font-size: 2em;
+    margin: 0 0 -.25em;
+}
+
+/* Top bar navigation menu */
+.top-bar,
+.top-bar-section {
+    border-bottom: 1px solid #1a1a21;
+}
+
+.top-bar,
+.top-bar-section,
+.top-bar-section .dropdown,
+.top-bar-section li,
+.top-bar-section li a,
+.top-bar.expanded .title-area {
+    background: #332f3f !important;
+}
+
+.top-bar ul.title-area h1 a {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    color: #73e0b8;
+}
+
+.top-bar-section ul,
+.top-bar-section ul li,
+.top-bar-section ul li a {
+    font-size: .8125rem !important;
+    line-height: 1.6 !important;
+}
+
+.top-bar-section ul li a {
+    padding: .75rem 1rem !important;
+}
+
+.top-bar-section ul li:hover,
+.top-bar-section ul li a:hover {
+    background: rgba(0, 0, 0, 0.1) !important;
+}
+
+.top-bar-section .has-dropdown > ul.dropdown {
+    border-top: 1px solid #34a278;
+}
+
+.top-bar-section .has-dropdown > a,
+.top-bar-section .dropdown li > a {
+    color: #fff;
+}
+
+.top-bar-section ul li > a {
+    font-family: 'PT Sans', sans-serif;
+}
+
+/* End topbar navigation menu */
+
+.footer {
+    background: #332f3f;
+    border-top: 1px solid #1a1a21;
+    color: #ccc;
+    font-size: .9rem;
+    padding: 10px 15px 0;
+}
+
+.footer a {
+    color: white;
+}
+
+.footer a:hover {
+    color: #ccc;
+}
+
+.page {
+    margin: 0 auto;
+    max-width: 40em;
+    padding: 6rem 1rem 4rem;
+}
+
+.page nav {
+    margin-top: 1.5rem;
+    width: 100%;
+    text-align: center;
+}
+
+.image img {
+    min-width: 100%;
+}
+
+.toggle.hasimage blockquote {
+    margin: 0 0 1.25rem 30px;
+}
+
+.toggle.hasimage {
+    min-height: 100px;
+}
+
+.toggle img {
+    width: 100px;
+    float: left;
+    margin-right: 1.5rem;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+textarea {
+    min-height: 7em;
+}
+
+fieldset {
+    padding: 1rem;
+}
+
+fieldset input[type="checkbox"],
+fieldset input[type="radio"] {
+    margin: 0;
+}
+
+fieldset label {
+    margin: 0 0 .5rem;
+}
+
+fieldset label:last-child {
+    margin: 0;
+}
+
+fieldset legend,
+.table .caption,
+label {
+    font-size: 85%;
+}
+
+fieldset label:last-child input {
+    margin-bottom: 0;
+}
+
+.table {
+    margin: 1.625rem 0;
+    padding: 1rem;
+}
+
+.table .caption {
+    position: relative;
+    top: -1.75em;
+    padding: 0 0.1875rem;
+    margin-left: -0.1875rem;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.table table {
+    border: none;
+    width: 100%;
+}
+
+.table td {
+    width: auto;
+    text-align: center;
+    vertical-align: top;
+}
+
+div.error {
+    font-size: .875em;
+    margin: 1em 0 1em;
+}
+
+.error.right {
+    margin-top: 3px;
+}
+
+.page > .error {
+    font-size: 1.25rem;
+    line-height: 1.5;
+}
+
+.large input[type="radio"] {
+    display: inline-block;
+    vertical-align: text-top;
+    margin-right: 5px;
+    width: 20px;
+    height: 20px;
+}
+
+.login.button {
+    margin-right: 1em;
+}
+
+.fade {
+    opacity: 1;
+    -webkit-transition: opacity .25s ease;
+    transition: opacity .25s ease;
+}
+
+.fade.ng-hide-add,
+.fade.ng-hide-remove {
+    display: block !important;
+}
+
+.fade.in.ng-hide-add {
+    display: none !important;
+}
+
+.fade.out.ng-hide-remove {
+    display: none !important;
+}
+
+.fade.ng-hide {
+    opacity: 0;
+}
+
+.slide {
+    max-height: 500px;
+    overflow: hidden;
+    -webkit-transition: max-height .15s linear;
+    transition: max-height .15s linear;
+}
+
+.slide.ng-hide-add,
+.slide.ng-hide-remove {
+    display: block !important;
+}
+
+.slide.ng-hide {
+    max-height: 0;
+}
+
+.ng-cloak {
+    display: none !important;
+}
+
+/* COLOR */
+
+body,
+table,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea {
+    color: #444;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #444;
+}
+
+a,
+a:visited {
+    color: #34a278;
+    transition: all 300ms ease-out;
+}
+
+a:hover,
+a:focus {
+    color: #348268;
+}
+
+button,
+.button {
+    background: #34d298;
+}
+
+a.button {
+    color: white;
+}
+
+button:hover,
+.button:hover {
+    background: #34a278;
+}
+
+button.disabled,
+button[disabled],
+.button.disabled,
+.button[disabled] {
+    background: #74e2b8;
+}
+
+button.disabled:hover,
+button[disabled]:hover,
+.button.disabled:hover,
+.button[disabled]:hover {
+    background: #74e2b8;
+}
+
+blockquote {
+    background: #ddf5e8;
+}
+
+blockquote,
+blockquote p {
+    color: #222;
+}
+
+blockquote:after {
+    border-color: transparent #ddf5e8;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+fieldset,
+.table {
+    background: white;
+    border: 1px solid #ccc;
+    border-left: 2px solid #34d298;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+textarea:focus {
+    background: white;
+    border-left: 2px solid #34d298;
+}
+
+fieldset legend,
+.table .caption {
+    color: #444;
+    background: white;
+}
+
+div.error {
+    color: #f23a14;
+}
+
+.stats {
+    font-family: 'PT Sans', sans-serif;
+    font-weight: 700;
+    text-align: center;
+    margin: 1rem 0;
+}
+
+.bignum {
+    font-size: 5rem;
+}
+
+.center {
+    text-align: center;
+}
+
+/* RESPONSIVE */
+
+@media only screen and (max-width: 75rem) {
+    .toggle img {
+        margin-left: 0;
+        margin-right: .5rem;
+        width: 100px;
+    }
+
+    .toggle > p {
+        margin-bottom: .75rem;
+    }
+
+    .toggle.hasimage blockquote {
+        margin-left: 130px;
+    }
+
+    blockquote:after {
+        left: -15px;
+        border-width: 0 15px 10px 0;
+    }
+}
+
+@media only screen and (max-width: 40rem) {
+    html {
+        font-size: 100%;
+    }
+    .hamburger {
+        display: inline-block;
+    }
+    .footer {
+        font-size: 90%;
+        overflow: visible;
+    }
+    .footer {
+        padding: .75rem .5rem;
+    }
+    header .logo {
+        padding: .125em .5em;
+    }
+}
+
+/* Prevent minor flickering while waiting for angular */
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+    display: none !important;
+}

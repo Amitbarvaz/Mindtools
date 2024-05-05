@@ -1,0 +1,66 @@
+.input-xlarge {
+    width: 100%;
+    max-width: 700px;
+    max-height: 500px
+}
+
+#language-switcher,
+#program-switcher,
+#stylesheet-switcher {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+}
+
+#language-switcher select,
+#program-switcher select,
+#stylesheet-switcher select {
+    outline: none;
+    background: transparent;
+    color: white;
+    border: none;
+    padding: 0;
+    margin: 0;
+    width: auto;
+    height: auto;
+    line-height: 1;
+    vertical-align: baseline;
+}
+
+#language-switcher option,
+#program-switcher option,
+#stylesheet-switcher option {
+    color: black;
+}
+
+.filebrowser #container #suit-center .breadcrumbs+#content,
+.filebrowser #container #suit-center .breadcrumbs+.messagelist+#content {
+    margin-left: 0 !important;
+}
+
+#footer {
+    position: fixed !important;
+    bottom: 0 !important;
+    z-index: 999;
+    min-height: 22px !important;
+}
+
+.footer {
+    min-height: 22px !important;
+}
+
+* {
+  -webkit-box-sizing: content-box;
+     -moz-box-sizing: content-box;
+          box-sizing: content-box;
+}
+*:before,
+*:after {
+  -webkit-box-sizing: content-box;
+     -moz-box-sizing: content-box;
+          box-sizing: content-box;
+}
+
+.icon-alpha5 {
+                opacity: .5;
+}

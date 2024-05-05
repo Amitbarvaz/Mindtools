@@ -1,0 +1,22 @@
+{% load i18n %}
+<div id="content" class="content" ng-app="content" ng-controller="contentArray">
+
+    <textarea id="id_data" name="data" class="data ng-hide">{% verbatim %}{{ data }}{% endverbatim %}</textarea>
+
+    <div class="pagelet" ng-repeat="pagelet in data track by $index">
+
+        <h3 class="title">{% verbatim %}{{ pagelet.content_type }}{% endverbatim %}</h3>
+
+        <div class="text" ng-controller="markdown">
+            <div class="markdown-guide">
+                <p>{% blocktrans %}This element uses <a href="http://markdown-guide.readthedocs.org/en/latest/basics.html">Markdown</a>. For variable replacement use <code ng-non-bindable>&#123;&#123; var_name &#125;&#125;</code>. This markup will be replaced by the user's value for <code>var_name</code>, if available.{% endblocktrans %}</p>
+            </div>
+            <textarea class="markdown-text" ng-model="pagelet.content"></textarea>
+            <div class="markdown-html" ng-bind-html="html"></div>
+        </div>
+
+    </div>
+    <script>
+        var initData = {{ value|safe }};
+    </script>
+</div>

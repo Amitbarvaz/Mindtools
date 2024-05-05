@@ -1,0 +1,37 @@
+version: '3'
+services:
+
+  db:
+    image: postgres
+    volumes:
+      - postgresql-volume:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_PASSWORD: postgres
+
+  redis:
+    image: redis
+    volumes:
+      - ./.docker-data/redis:/data
+    ports:
+      - '6379:6379'
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/code
+    command: sh -c "supervisord -c /etc/supervisor/supervisor.conf"
+    ports:
+      - '8000:8000'
+      - '5678:5678'
+    environment:
+      - DEBUG=1
+    links:
+      - db
+      - redis
+
+volumes:
+  postgresql-volume:

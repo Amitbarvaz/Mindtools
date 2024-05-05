@@ -1,0 +1,95 @@
+{% load static i18n compress %}
+{% get_current_language_bidi as lang_dir %}
+
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Study Meetings</title>
+    {% compress css %}
+    {% if lang_dir %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main-mobile.css' %}">
+    {% else %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main_en.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main-mobile_en.css' %}">
+    {% endif %}
+    {% endcompress %}
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;500;700&display=swap" rel="stylesheet">
+    {% compress js %}
+    <script src="{% static 'lib/angular/angular.min.js' %}"></script>
+    <script src="{% static 'lib/ng-idle/angular-idle.js' %}"></script>
+    {% endcompress %}
+</head>
+<body ng-app="idle" ng-controller="idle">
+<!--starts header-->
+{% include 'navbar.html' %}
+<!--end header-->
+<div class="page right">
+    <div class="page-container full-width">
+        <div class="header-1">{% trans 'Study meetings' %}</div>
+        <div>
+            <div class="header-2">{% trans 'Open steps' %}</div>
+            <div class="module-press-to-view">{% trans 'Press item to view content' %}</div>
+            <div class="column right">
+                {% for module in modules %}
+                    {% if module.is_enabled %}
+                        <a class="text-box {% if module.id == current_module_id %}active{% endif %}"
+                           href="{% url 'content' %}{{ module.id }}/">
+                            <div class="text-box-icon right-icon">
+                                {% if module.id == current_module_id %}
+                                    <img class="circle-img" src="{% static 'img/circle.svg' %}">
+                                {% else %}
+                                    <img class="circle-img" src="{% static 'img/check.svg' %}"/>
+                                {% endif %}
+                            </div>
+
+                            <div class="text-box-text">
+                                <div class="module-name">{{ module.name }}</div>
+                                {% if module.id == current_module_id %}
+                                    <div class="hint active">{% trans 'Current step' %}</div>
+                                {% else %}
+                                    <div class="hint">{% trans 'Completed' %}</div>
+                                {% endif %}
+                            </div>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="steps-space"></div>
+
+            <div class="header-2">{% trans 'Future steps' %}</div>
+            <div class="column right">
+                {% for module in modules %}
+                    {% if not module.is_enabled %}
+                        <div class="text-box">
+                            <div class="module-name-future">{{ module.name }}</div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="footer-spacer"></div>
+<div class="footer">
+    Mindtools.io © All right reserved
+    {% include 'idle_popup.html' %}
+</div>
+
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/serafin.js' %}"></script>
+
+<script>
+    var api = '{{ api|safe }}';
+    var csrf_token = '{{ csrf_token }}';
+</script>
+
+</body>
+</html>
+
+
+

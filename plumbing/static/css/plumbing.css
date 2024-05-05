@@ -1,0 +1,277 @@
+.plumbing {
+    width: 100%;
+    height: 60em;
+    position: relative;
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 3px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow: hidden;
+}
+
+.plumbing .box {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    box-shadow: 1px 1px 4px #ddd;
+}
+
+.node {
+    cursor: move;
+    padding: 1.25em 2.5em 1.25em 1.1em;
+    z-index: 4;
+}
+
+#node_0,
+.plumbing .toolbox .btn,
+.plumbing .node.delay,
+.plumbing .node.email,
+.plumbing .node.sms,
+.plumbing .node.register,
+.plumbing .node.enroll,
+.plumbing .node.leave {
+    background: #eee;
+}
+
+.plumbing .toolbox .btn.page {
+    background: #fff;
+}
+
+.plumbing .toolbox .btn.session,
+.plumbing .node.session {
+    background: #efe;
+}
+
+.plumbing .toolbox .btn.expression,
+.plumbing .node.expression {
+    background: #fed;
+}
+
+.plumbing .toolbox .btn:hover {
+    background: #ddd;
+}
+
+.plumbing .toolbox .btn.page:hover {
+    background: #eee;
+}
+
+.plumbing .toolbox .btn.session:hover {
+    background: #ded;
+}
+
+.plumbing .toolbox .btn.expression:hover {
+    background: #edc;
+}
+
+.node:hover {
+    background: #5C97BF !important;
+    color: white;
+}
+
+.node,
+.overlay {
+    transition: background 0.25s;
+    transition: color 0.25s;
+    font-size: 11px;
+    line-height: 1.2;
+    position: absolute;
+    white-space: nowrap;
+}
+
+.overlay {
+    cursor: pointer;
+    padding: .25em 2em .25em .25em;
+    z-index: 6;
+}
+
+.overlay.special {
+    background: #eee;
+}
+
+.overlay .summary {
+    margin: 0;
+    line-height: 1.5;
+    min-height: 1.5em;
+    min-width: 1em;
+}
+
+.overlay:hover,
+._jsPlumb_source_hover,
+._jsPlumb_target_hover {
+    background: #4DAF7C !important;
+    color: white;
+}
+
+.ep,
+.delete {
+    box-sizing: border-box;
+    position: absolute;
+    right: 5px;
+    width: 13px;
+    height: 13px;
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+.ep {
+    top: 5px;
+    background: #ffaa66;
+}
+
+.delete {
+    bottom: 5px;
+    line-height: 1;
+    font-size: 13px;
+    text-align: center;
+    background: #FF603E;
+    color: white;
+}
+
+.ep:hover,
+.delete:hover {
+    box-shadow: 0 0 3px #333;
+}
+
+._jsPlumb_endpoint {
+    z-index: 3;
+}
+
+._jsPlumb_connector {
+    z-index: 5;
+}
+
+._jsPlumb_connector.normal path {
+    stroke: #5C97BF;
+}
+
+._jsPlumb_connector.special path {
+    stroke: #aaa;
+}
+
+._jsPlumb_connector.normal path:last-child {
+    fill: #5C97BF;
+}
+
+._jsPlumb_connector.special path:last-child {
+    fill: #aaa;
+}
+
+._jsPlumb_connector._jsPlumb_hover path {
+    stroke: #4DAF7C;
+}
+
+._jsPlumb_connector._jsPlumb_dragging path {
+    stroke: #aaa !important;
+}
+
+._jsPlumb_connector._jsPlumb_dragging path + path {
+    fill: #aaa !important;
+}
+
+._jsPlumb_endpoint._jsPlumb_dragging {
+    display: none;
+}
+
+
+.dragHover {
+    border: 2px solid orange;
+}
+
+path {
+    cursor: pointer;
+}
+
+.toolbox {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    margin: 0.5rem;
+}
+
+.toolbox .btn {
+    margin: 0 .5rem .5rem 0;
+}
+
+.settings,
+.conditions {
+    border: 1px solid #ccc;
+    line-height: 16px;
+    margin: 0.5rem;
+    min-width: 30em;
+    padding: .5rem;
+    position: absolute;
+    z-index: 50;
+    top: 35%;
+    left: 25px;
+    max-height: 16em;
+}
+
+.conditions label {
+    font-weight: bold;
+}
+
+.conditions .expression-widget-wrapper {
+    margin-top: 0.5em;
+}
+
+.settings label {
+    margin: .5em 0 0;
+}
+
+.delay.settings input[type=number] {
+    width: 8em;
+    margin-right: .5rem;
+}
+
+.delay.settings select {
+    width: auto;
+    margin-right: .5rem;
+}
+
+.delay.settings input[type=checkbox] {
+    margin: 0;
+    vertical-align: text-bottom;
+}
+
+.expression.settings select {
+    width: 100%;
+}
+
+.enroll.settings {
+    min-width: 18em;
+}
+
+.enroll.settings label {
+    margin: 0 0 .5em;
+}
+
+.node i {
+    margin-bottom: -1px;
+    vertical-align: text-bottom;
+    margin-right: 5px;
+}
+
+.node .indent {
+    margin-left: 22px;
+}
+
+.node .id,
+.overlay .id {
+    position: absolute;
+    top: .25rem;
+    left: .25rem;
+    font-size: 75%;
+}
+
+.scrollmarker {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    line-height: 1;
+    pointer-events: none;
+}

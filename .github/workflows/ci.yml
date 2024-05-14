@@ -12,7 +12,10 @@ jobs:
 
     services:
       # Label used to access the service container
-      postgres:
+      redis:
+        image: redis
+
+      db:
         # Docker Hub image
         image: postgres:15
         # Provide the password for postgres
@@ -26,6 +29,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
     steps:
       - run: echo "Starting Tests"
       - run: apt update && apt install -y gcc libpq-dev libz-dev

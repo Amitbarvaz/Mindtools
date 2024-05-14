@@ -5,7 +5,7 @@ from time import sleep
 
 from django.contrib.auth import get_user_model
 from django.db.models import signals
-from django.test import TestCase, modify_settings
+from django.test import TestCase, modify_settings, TransactionTestCase
 from django.utils import timezone
 
 from huey.contrib.djhuey import HUEY as huey, task
@@ -188,7 +188,7 @@ class TaskerTestCase(TestCase):
         print('test_revoke_task task id: %s' % task.task_id)
 
 
-class SessionIntegrationTestCase(TestCase):
+class SessionIntegrationTestCase(TransactionTestCase):
     '''
     This tests predicted indirect Task creation, revocation and rescheduling
     by signal receivers when manipulating Session and ProgramUserAccess models.
@@ -206,10 +206,10 @@ class SessionIntegrationTestCase(TestCase):
         self.program = Program(title='Program', display_title='Program')
         self.program.save()
 
-        self.user_a = User.objects.create_user(1, 'test', 'test1@test.no', '98765431')
+        self.user_a = User.objects.create_user(1, 'test1@test.no', '98765431')
         self.user_a.save()
 
-        self.user_b = User.objects.create_user(2, 'test', 'test2@test.no', '98765432')
+        self.user_b = User.objects.create_user(2, 'test2@test.no', '98765432')
         self.user_b.save()
 
     def test_schedule_sessions(self):

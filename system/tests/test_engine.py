@@ -110,6 +110,7 @@ class EngineTestCase(TestCase):
             title='Test email',
             display_title='Test email',
             content_type='email',
+            program=self.program,
             data=[{
                 'content_type': 'text',
                 'content': 'Email content'
@@ -402,7 +403,7 @@ class EngineTestCase(TestCase):
             self.data['mail'] = message
             self.save()
 
-        def send_sms(self, message=None):
+        def send_sms(self, message=None, is_whatsapp=False):
 
             self.data['sms'] = message
             self.save()

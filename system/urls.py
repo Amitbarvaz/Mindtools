@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-from django.conf.urls import url, include
+from django.urls import include, re_path
 from rest_framework import routers
 
 from system.views import VariableViewSet, VariableSearchViewSet, ExpressionViewSet
@@ -12,6 +12,6 @@ router.register(r'evaluate-expression', ExpressionViewSet, basename="evaluate-ex
 router.register(r'variables', VariableViewSet, basename="variable-viewset")
 
 urlpatterns = [
-    url(r'', include(router.urls)),
+    re_path(r'', include(router.urls)),
 ]
 

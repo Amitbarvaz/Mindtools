@@ -3,9 +3,9 @@
 from __future__ import unicode_literals
 
 import socket
+import zoneinfo
 from builtins import object
 from datetime import timedelta, datetime
-import pytz
 import re
 
 from django.contrib.auth import get_user_model
@@ -509,7 +509,7 @@ class Engine(object):
             useraccesses = self.session.program.programuseraccess_set.filter(user=self.user)
             for useraccess in useraccesses:
 
-                start_time = datetime.now(pytz.utc)
+                start_time = datetime.now(zoneinfo.ZoneInfo('UTC'))
                 delay = node.get('delay')
                 variable_name = delay.get('variable')
                 delay_number = delay.get('number')

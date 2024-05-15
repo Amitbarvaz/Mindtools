@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth.views import redirect_to_login, update_session_auth_hash, PasswordChangeView
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django.conf import settings
 from django.contrib.auth import login, logout, authenticate

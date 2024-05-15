@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from builtins import str
 from builtins import object
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils.deprecation import MiddlewareMixin
 
 import json
@@ -16,7 +16,8 @@ class EventTrackingMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
 
-        if (not request.is_ajax() or
+        # is_ajax switched as per - https://docs.djangoproject.com/en/3.1/releases/3.1/#id2
+        if (not request.headers.get('x-requested-with') == 'XMLHttpRequest' or
                 not request.method == 'POST' or
                 request.FILES or
                 request.user.is_anonymous or

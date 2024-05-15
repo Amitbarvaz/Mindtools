@@ -4,8 +4,8 @@ from django.shortcuts import get_object_or_404, redirect, reverse
 from django.utils import translation
 from django.utils.functional import SimpleLazyObject
 from django.contrib.auth.middleware import AuthenticationMiddleware
-from ratelimit import ALL, UNSAFE
-from ratelimit.core import is_ratelimited
+from django_ratelimit import ALL, UNSAFE
+from django_ratelimit.core import is_ratelimited
 
 from system.models import Session
 

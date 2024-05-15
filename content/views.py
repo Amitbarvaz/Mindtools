@@ -13,8 +13,8 @@ from django.shortcuts import get_object_or_404, render
 from django.utils import translation, timezone
 from filer.models import File, Image
 from itertools import chain
-from ratelimit import UNSAFE
-from ratelimit.decorators import ratelimit
+from django_ratelimit import UNSAFE
+from django_ratelimit.decorators import ratelimit
 from system.models import Session, Page, ProgramUserAccess, ProgramGoldVariable, Variable, TherapistNotification, \
     ChatMessage, Note, Chapter
 from events.models import Event
@@ -75,7 +75,7 @@ def users_stats(request):
             (not request.user.is_therapist and not request.user.is_staff):
         raise Http404
 
-    if not request.is_ajax():
+    if not request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return therapist_zone(request)
 
     user_id = request.GET.get('user_id')
@@ -157,7 +157,7 @@ def user_state(request, user_id):
             (not request.user.is_therapist and not request.user.is_staff):
         raise Http404
 
-    if not request.is_ajax():
+    if not request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return therapist_zone(request)
 
     # verify the therapist is the owner of this user
@@ -349,7 +349,7 @@ def tools_page(request):
 
 
 def module_redirect(request, module_id):
-    if not request.is_ajax():
+    if not request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return main_page(request)
 
     session_id = request.user.data.get('session')
@@ -391,7 +391,7 @@ def module_redirect(request, module_id):
 
 
 def get_portal(request):
-    if not request.is_ajax():
+    if not request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return main_page(request)
 
     modules = request.user.get_modules()
@@ -430,7 +430,7 @@ def home(request):
 
 @login_required
 def get_session(request, module_id=None):
-    if request.is_ajax():
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return get_page(request)
 
     # admin session preview support
@@ -517,7 +517,7 @@ def get_page(request):
 
 
 def content_route(request, route_slug=None):
-    if request.is_ajax():
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return get_page(request)
 
     session = get_object_or_404(Session, route_slug=route_slug)

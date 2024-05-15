@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 from __future__ import absolute_import
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -10,7 +10,8 @@ from django.dispatch import receiver, Signal
 from .models import Event
 
 
-log_event = Signal(providing_args=["domain", "actor", "variable", "pre_value", "post_value"])
+# providing_args=["domain", "actor", "variable", "pre_value", "post_value"]
+log_event = Signal()
 
 
 @receiver(log_event)

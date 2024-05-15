@@ -1,4 +1,4 @@
-{% load i18n staticfiles sitetree %}
+{% load i18n static sitetree %}
 
 <!doctype html>
 <html lang="{{ LANGUAGE_CODE|default:'he' }}" ng-app="serafin">
@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>{% block title %}MindTools{% endblock %}</title>
     {% block meta %}{% endblock %}
-    {% load staticfiles %}
+    {% load static %}
     {% load compress %}
     {% compress css %}
     <link rel="stylesheet" href="{% static 'lib/foundation/css/foundation.min.css' %}" />

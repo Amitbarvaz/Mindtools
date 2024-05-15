@@ -583,6 +583,8 @@ ALLOWED_ADMIN_IP_RANGES = ['127.0.0.0/24', '::/1']
 RESTRICTED_APP_NAMES = ['admin']
 TRUST_PRIVATE_IP = True
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 if not DEBUG:
     AWS_ACCESS_KEY_ID = ''
     AWS_SECRET_ACCESS_KEY = ''

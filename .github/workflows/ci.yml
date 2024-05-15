@@ -14,6 +14,8 @@ jobs:
       # Label used to access the service container
       redis:
         image: redis
+        ports:
+          - 6379:6379
 
       db:
         # Docker Hub image
@@ -23,6 +25,9 @@ jobs:
           POSTGRES_DB: postgres
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+
+        ports:
+          - 5432:5432
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -43,4 +48,4 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction
       - name: Run tests
-        run: poetry run python manage.py test -v 3
+        run: poetry run python manage.py test -v 3 --settings=serafin.settings_tests

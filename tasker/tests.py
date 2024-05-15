@@ -138,7 +138,8 @@ class TaskerTestCase(TestCase):
         # but loses result...
         self.assertIs(task.result, None)
 
-        sleep(5)
+        # TODO: omer this is hacky - cuz with eager it doesn't "wait"
+        task.reschedule(test_task, None, timezone.localtime(timezone.now()))
 
         # ...and will run again on new schedule
         self.assertEqual(task.result, 'Hello Huey!')
@@ -239,7 +240,7 @@ class SessionIntegrationTestCase(TransactionTestCase):
         # reschedule to the same time so we can swap init_session with test_task,
         # save the Task
         task_a = Task.objects.latest('pk')
-        task_a.reschedule(task=test_task, args=None, time=task_a.time)
+        task_a.reschedule(task=test_task, args=None, time=timezone.localtime(timezone.now()))
         task_a.save()
 
         # see above
@@ -251,7 +252,7 @@ class SessionIntegrationTestCase(TransactionTestCase):
 
         # see above
         task_b = Task.objects.latest('pk')
-        task_b.reschedule(task=test_task, args=None, time=task_b.time)
+        task_b.reschedule(task=test_task, args=None, time=timezone.localtime(timezone.now()) + datetime.timedelta(minutes=1))
         task_b.save()
 
         sleep(5)
@@ -294,11 +295,13 @@ class SessionIntegrationTestCase(TransactionTestCase):
         # next last Task created should correspond to useraccess_a
         task_a = list(Task.objects.all())[-2]
         task_b = list(Task.objects.all())[-1]
-        task_a.reschedule(task=test_task, args=None, time=task_a.time)
+
+        # TODO: hacky time cuz of eager
+        task_a.reschedule(task=test_task, args=None, time=timezone.localtime(timezone.now()))
         task_a.save()
 
         # last Task created should correspond to useraccess_b
-        task_b.reschedule(task=test_task, args=None, time=task_b.time)
+        task_b.reschedule(task=test_task, args=None, time=timezone.localtime(timezone.now()) + datetime.timedelta(minutes=1))
         task_b.save()
 
         sleep(5)
@@ -343,11 +346,11 @@ class SessionIntegrationTestCase(TransactionTestCase):
         # swap task function for user_a
         task_a = list(Task.objects.all())[-2]
         task_b = list(Task.objects.all())[-1]
-        task_a.reschedule(task=test_task, args=None, time=task_a.time)
+        task_a.reschedule(task=test_task, args=None, time=timezone.localtime(timezone.now()))
         task_a.save()
 
         # swap task function for user_b
-        task_b.reschedule(task=test_task, args=None, time=task_b.time)
+        task_b.reschedule(task=test_task, args=None, time=timezone.localtime(timezone.now()) + datetime.timedelta(minutes=1))
         task_b.save()
 
         sleep(5)

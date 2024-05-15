@@ -1,4 +1,3 @@
-from django.conf.urls import include, url
 from django.urls import path
 from content.views import get_page, get_session, home, api_filer_file, content_route, \
     main_page, get_portal, modules_page, module_redirect, therapist_zone, users_stats, \

@@ -59,7 +59,7 @@ from sys import float_info
 from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from pyparsing import (
     Literal, CaselessLiteral, Keyword, Word, Combine, Optional,
     ParseException, ZeroOrMore, Forward, Suppress, Group,

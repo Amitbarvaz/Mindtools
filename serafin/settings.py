@@ -93,7 +93,7 @@ MIDDLEWARE = (
     'events.middleware.EventTrackingMiddleware',
     'request.middleware.RequestMiddleware',
     'users.middleware.ForceChangePasswordMiddleware',
-    'admin_ip_restrictor.middleware.AdminIPRestrictorMiddleware'
+    'serafin.middleware.AdminIPRestrictorMiddleware'
 )
 
 ROOT_URLCONF = 'serafin.urls'
@@ -142,7 +142,7 @@ DATABASES = {
 
 LANGUAGE_CODE = 'en'
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 LANGUAGES = (
     ('en', _('English')),

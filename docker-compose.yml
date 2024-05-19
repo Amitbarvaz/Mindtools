@@ -1,17 +1,40 @@
-version: '3'
+version: "3.9"
+
 services:
+
+  nginx:
+    image: nginx:latest
+    container_name: mindtools-nginx
+    ports:
+      - "8000:8080"
+    volumes:
+      - ./nginx_compose:/etc/nginx/conf.d
+      - ./data/static:/static
+      - ./data/media:/media
+
+    depends_on:
+      - app
 
   db:
     image: postgres
+    container_name: mindtools-postgres
     volumes:
       - postgresql-volume:/var/lib/postgresql/data
     ports:
       - '5432:5432'
     environment:
-      POSTGRES_PASSWORD: postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres -p 5432" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis
+    container_name: mindtools-redis
     volumes:
       - ./.docker-data/redis:/data
     ports:
@@ -21,17 +44,62 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    volumes:
-      - .:/code
-    command: sh -c "supervisord -c /etc/supervisor/supervisor.conf"
-    ports:
-      - '8000:8000'
-      - '5678:5678'
     environment:
-      - DEBUG=1
-    links:
-      - db
-      - redis
+      - DJANGO_ALLOWED_HOSTS=app,localhost,127.0.0.1
+      - DJANGO_MEDIA_ROOT=/media/
+      - DJANGO_SETTINGS_MODULE=serafin.settings
+      - DJANGO_CSRF_TRUSTED_ORIGINS=http://localhost:8000
+
+    command:
+      - bash
+      - -c
+      - |
+        python manage.py migrate
+        python manage.py createsuperuser --username admin --email admin@admin.com --noinput && cat <<-000 | python manage.py shell
+        from django.contrib.auth import get_user_model
+        admin = get_user_model().objects.get(username='admin')
+        admin.set_password('admin')
+        admin.save()
+        print('Superuser password updated successfully.')
+        000
+        python manage.py collectstatic --noinput
+        cp /srv/app/static/* -r /static/
+        gunicorn --workers 3 serafin.wsgi --timeout 180 --bind 0.0.0.0 --reload
+
+    volumes:
+      - ./data/static:/static
+      - ./data/media:/media
+      - .:/srv/app # Mount the local folder directly, so no need for extra build
+    expose:
+      - "8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+
+  huey:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DJANGO_ALLOWED_HOSTS=app,localhost,127.0.0.1
+      - DJANGO_MEDIA_ROOT=/media/
+      - DJANGO_SETTINGS_MODULE=serafin.settings
+      - DJANGO_CSRF_TRUSTED_ORIGINS=http://localhost:8000
+
+    volumes:
+      - ./data/static:/static
+      - ./data/media:/media
+      - .:/srv/app # Mount the local folder directly, so no need for extra build
+
+    command: python manage.py run_huey --disable-autoload
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
 
 volumes:
   postgresql-volume:
+  static_data:

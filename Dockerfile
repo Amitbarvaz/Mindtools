@@ -30,8 +30,8 @@ WORKDIR /srv/app
 RUN npm install jsplumb@1.7.9
 COPY bower.json .bowerrc /srv/app/
 RUN bower --allow-root install
-RUN sed -i 's/\/assets\/images\/ng-emoji-picker/\/static\/\/static\/lib\/ng-emoji-picker\/img/g' /code/staticfiles/lib/ng-emoji-picker/js/jquery.emojiarea.js
-RUN sed -i 's/\/assets\/images\/ng-emoji-picker/\/static\/\/static\/lib\/ng-emoji-picker\/img/g' /code/staticfiles/lib/ng-emoji-picker/css/emoji.css
+RUN sed -i 's/\/assets\/images\/ng-emoji-picker/\/static\/\/static\/lib\/ng-emoji-picker\/img/g' /srv/app/staticfiles/lib/ng-emoji-picker/js/jquery.emojiarea.js
+RUN sed -i 's/\/assets\/images\/ng-emoji-picker/\/static\/\/static\/lib\/ng-emoji-picker\/img/g' /srv/app/staticfiles/lib/ng-emoji-picker/css/emoji.css
 
 COPY django-multisite.tar.gz /srv/app/
 RUN tar xvzf django-multisite.tar.gz

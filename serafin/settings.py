@@ -10,8 +10,9 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from pathlib import Path
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -29,7 +30,8 @@ if DEBUG:
     ALLOWED_HOSTS = ['*']
 else:
     ALLOWED_HOSTS = []
-ALLOWED_HOSTS_ENV = os.environ.get('ALLOWED_HOSTS')
+ALLOWED_HOSTS_ENV = os.environ.get('DJANGO_ALLOWED_HOSTS', "app,localhost,127.0.0.1")
+CSRF_TRUSTED_ORIGINS = os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', "http://localhost:8000,http://app:8000,http://127.0.0.1:8000").split(',')
 if ALLOWED_HOSTS_ENV:
     ALLOWED_HOSTS.extend(ALLOWED_HOSTS_ENV.split(','))
 
@@ -170,12 +172,12 @@ if USE_HTTPS:
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR + '/vol/web/static'
+STATIC_ROOT = BASE_DIR / 'static'
 
-COMPRESS_ENABLED = True
+COMPRESS_ENABLED = False
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR + '/vol/web/media'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'staticfiles'),

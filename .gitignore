@@ -26,6 +26,7 @@ local
 env
 
 /.docker-data/
+/data/
 /media/
 /static/
 /src/

@@ -17,7 +17,7 @@ class EventTrackingMiddleware(MiddlewareMixin):
     def process_request(self, request):
 
         # is_ajax switched as per - https://docs.djangoproject.com/en/3.1/releases/3.1/#id2
-        if (not request.headers.get('x-requested-with') == 'XMLHttpRequest' or
+        if (not request.is_ajax or
                 not request.method == 'POST' or
                 request.FILES or
                 request.user.is_anonymous or

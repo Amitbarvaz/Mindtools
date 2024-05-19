@@ -1,7 +1,8 @@
-FROM python:3.10-slim-bookworm
+FROM python:3.10-slim-bullseye
 
 RUN apt-get update
 RUN apt-get install -y curl
+RUN apt-get install -y gcc
 
 RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get remove nodejs && \
@@ -32,7 +33,6 @@ RUN rm -fr django-multisite django-multisite.tar.gz django_multisite.egg-info
 COPY requirements.txt /code/
 RUN pip install -r requirements.txt
 RUN pip install ptvsd
-RUN pip install https://github.com/darklow/django-suit/tarball/v2
 COPY supervisor.conf /etc/supervisor/supervisor.conf
 COPY supervisor.deploy.conf /etc/supervisor/supervisor.deploy.conf
 COPY . /code/

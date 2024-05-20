@@ -73,8 +73,8 @@ services:
         gunicorn --workers 3 serafin.wsgi --timeout 180 --bind 0.0.0.0:8000 --reload
 
     volumes:
-      - ./data/static:/static
-      - ./data/media:/media
+      - static_data/static:/static
+      - static_data/media:/media
       - .:/srv/app # Mount the local folder directly, so no need for extra build
     expose:
       - "8000"
@@ -96,8 +96,8 @@ services:
       - DEBUG=0
 
     volumes:
-      - ./data/static:/static
-      - ./data/media:/media
+      - static_data/static:/static
+      - static_data/media:/media
       - .:/srv/app # Mount the local folder directly, so no need for extra build
 
     command: python manage.py run_huey --disable-autoload

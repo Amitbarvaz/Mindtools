@@ -10,8 +10,8 @@ services:
       - "8000:8080"
     volumes:
       - ./nginx_compose:/etc/nginx/conf.d
-      - ./data/static:/static
-      - ./data/media:/media
+      - static_data/static:/static
+      - static_data/media:/media
 
     depends_on:
       - app
@@ -20,7 +20,7 @@ services:
     image: postgres
     container_name: mindtools-postgres
     volumes:
-      - ./data:/var/lib/postgresql/data
+      - postgresql-volume:/var/lib/postgresql/data
     ports:
       - '5432:5432'
     environment:
@@ -50,6 +50,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    env_file:
+      - .env  # TODO ADD SECRETS and env vars on the server
     environment:
       - DJANGO_ALLOWED_HOSTS=app,localhost,127.0.0.1
       - DJANGO_SETTINGS_MODULE=serafin.settings
@@ -72,8 +74,8 @@ services:
         gunicorn --workers 3 serafin.wsgi --timeout 180 --bind 0.0.0.0:8000 --reload
 
     volumes:
-      - ./data/static:/static
-      - ./data/media:/media
+      - static_data/static:/static
+      - static_data/media:/media
       - .:/srv/app # Mount the local folder directly, so no need for extra build
     expose:
       - "8000"
@@ -87,14 +89,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    env_file:
+      - .env     # TODO ADD SECRETS and env vars on the server
     environment:
       - DJANGO_ALLOWED_HOSTS=app,localhost,127.0.0.1
       - DJANGO_SETTINGS_MODULE=serafin.settings
       - DJANGO_CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://app:8000,http://127.0.0.1:8000
 
+
     volumes:
-      - ./data/static:/static
-      - ./data/media:/media
+      - static_data/static:/static
+      - static_data/media:/media
       - .:/srv/app # Mount the local folder directly, so no need for extra build
 
     command: python manage.py run_huey --disable-autoload
@@ -103,3 +108,7 @@ services:
         condition: service_healthy
       db:
         condition: service_healthy
+
+volumes:
+  postgresql-volume:
+  static_data:

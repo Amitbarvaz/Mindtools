@@ -722,6 +722,27 @@ rcssmin = "1.1.1"
 rjsmin = "1.2.1"
 
 [[package]]
+name = "django-configurations"
+version = "2.5.1"
+description = "A helper for organizing Django settings."
+optional = false
+python-versions = "<4.0,>=3.8"
+files = [
+    {file = "django-configurations-2.5.1.tar.gz", hash = "sha256:6e5083757e2bbdf9bb7850567536b96a93515f6b17503d74928ff628db2e0e94"},
+    {file = "django_configurations-2.5.1-py3-none-any.whl", hash = "sha256:ceb84858da2dac846b15e715c2fd936cfc4c7917c074aff8d31700564093955e"},
+]
+
+[package.dependencies]
+django = ">=3.2"
+
+[package.extras]
+cache = ["django-cache-url"]
+database = ["dj-database-url"]
+email = ["dj-email-url"]
+search = ["dj-search-url"]
+testing = ["dj-database-url", "dj-email-url", "dj-search-url", "django-cache-url (>=1.0.0)"]
+
+[[package]]
 name = "django-constance"
 version = "3.1.0"
 description = "Django live settings with pluggable backends, including Redis."
@@ -2857,4 +2878,4 @@ test = ["pytest"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "8246bd541be06d116197283a5a09832da3cb84eb4c55bcdcaee96385031adcc0"
+content-hash = "58f6821612c686c9b391814ca19d9cc1cb4d75b82403fbfa31dc5584acd4c5ac"

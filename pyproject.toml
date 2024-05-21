@@ -92,6 +92,7 @@ django-admin-sortable = "^2.3"
 django-ratelimit = "^4.1.0"
 backports-csv = "^1.0.7"
 django-ipware = "^7.0.1"
+django-configurations = "^2.5.1"
 
 [tool.poetry.dependencies.django-suit-v2-pm]
 git = "https://github.com/pulse-mind/django-suit.git"

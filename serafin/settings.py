@@ -27,7 +27,7 @@ class Base(Configuration):
     SECRET_KEY = values.Value("django-insecure-o-rrch1c#^%2gw!&(acqgb6=(j$%n^6iip7_b7#q2vz^o(a3+u")
 
     # SECURITY WARNING: don't run with debug turned on in production!
-    DEBUG = True
+    DEBUG = False
     TEMPLATE_DEBUG = DEBUG
     USERDATA_DEBUG = DEBUG
     RATELIMIT_ENABLE = True
@@ -147,12 +147,10 @@ class Base(Configuration):
     USE_I18N = True
     USE_L10N = True
     USE_TZ = True
-    USE_HTTPS = values.BooleanValue(False)
-
-    if USE_HTTPS:
-        SECURE_SSL_REDIRECT = True
-        SESSION_COOKIE_SECURE = True
-        CSRF_COOKIE_SECURE = True
+    USE_HTTPS = True
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/1.8/howto/static-files/
@@ -239,28 +237,38 @@ class Base(Configuration):
     LOG_MAX_MILLISECONDS = 5 * 60 * 1000  # 5 minutes
 
     # Email
+    EMAIL_BACKEND = values.Value('django.core.mail.backends.smtp.EmailBackend')
+    SERVER_EMAIL = values.Value('DigitalLab<no-reply.dplab@welfare.haifa.ac.il>')
+    DEFAULT_FROM_EMAIL = values.Value('DigitalLab<no-reply.dplab@welfare.haifa.ac.il>')
+    EMAIL_SUBJECT_PREFIX = values.Value('[Mindtools] ')
 
-    SERVER_EMAIL = values.Value('Serafin <post@example.com>')
-    DEFAULT_FROM_EMAIL = values.Value('Serafin <post@example.com>')
-    EMAIL_SUBJECT_PREFIX = values.Value('[Serafin] ')
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    SUPPORT_EMAIL = values.Value('DPLAB@UNIV.HAIFA.AC.IL')
+    EMAIL_TEST_ADDR = values.Value('weizenberg@gmail.com')
+    EMAIL_HOST = values.Value('mr1res.haifa.ac.il')
+    EMAIL_USE_SSL = values.BooleanValue(False)
+    EMAIL_PORT = values.Value(25)
+    SUPPORT_EMAIL = values.Value('dplab@welfare.haifa.ac.il')
 
     # SMS service
 
-    SMS_SERVICE = 'Console'
+    SMS_SERVICE = values.Value('Console')
+    TWILIO_ACCOUNT_SID = values.Value()
+    TWILIO_AUTH_TOKEN = values.Value()
+    TWILIO_FROM_NUMBER = values.Value('HeroOfMind')
+    TWILIO_WHATSAPP_FROM_NUMBER = values.Value()
+    TEST_TO_SMS = values.Value('+972506370323')
 
     # Google Analytics
 
     GOOGLE_ANALYTICS_ID = ''
 
+    REDIS_PASSWORD = values.Value()
     # Huey
 
     HUEY = {
         'name': 'serafin',
         'store_none': True,
         'always_eager': False,
-        'immediate': True,
+        'immediate': False,
         'consumer': {
             'quiet': True,
             'workers': 100,
@@ -269,6 +277,7 @@ class Base(Configuration):
         },
         'connection': {
             'host': 'redis',
+            'password': REDIS_PASSWORD,
             'port': 6379
         }
     }
@@ -510,6 +519,7 @@ class Base(Configuration):
 
     CONSTANCE_REDIS_CONNECTION = {
         'host': 'redis',
+        'password': REDIS_PASSWORD,
         'port': 6379
     }
 
@@ -551,7 +561,8 @@ class Base(Configuration):
     ]
 
     # TODO: update this...
-    DEFENDER_REDIS_URL = 'redis://' + CONSTANCE_REDIS_CONNECTION['host'] + ':' + str(CONSTANCE_REDIS_CONNECTION['port']) \
+    DEFENDER_REDIS_URL = 'redis://' + CONSTANCE_REDIS_CONNECTION['password'] + '@' + CONSTANCE_REDIS_CONNECTION[
+        'host'] + ':' + str(CONSTANCE_REDIS_CONNECTION['port']) \
                          + '/0'
     DEFENDER_LOGIN_FAILURE_LIMIT = 5
     DEFENDER_COOLOFF_TIME = 0
@@ -562,13 +573,53 @@ class Base(Configuration):
     ALLOWED_ADMIN_IPS = values.ListValue(['127.0.0.1', '::1'])
     ALLOWED_ADMIN_IP_RANGES = values.ListValue(['127.0.0.0/24', '::/1'])
     RESTRICTED_APP_NAMES = values.ListValue(['admin'])
-    TRUST_PRIVATE_IP = values.BooleanValue(True)
+    TRUST_PRIVATE_IP = False
 
     DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
+    AWS_ACCESS_KEY_ID = values.Value('')
+    AWS_SECRET_ACCESS_KEY = values.Value('')
+    AWS_STORAGE_BUCKET_NAME = values.Value('')
+    AWS_S3_CUSTOM_DOMAIN = values.Value('')
+    PUBLIC_MEDIA_LOCATION = values.Value('media')
+
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    FILE_UPLOAD_PERMISSIONS = 0o644
+    FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600
+    DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
+
 
 class Development(Base):
-    pass
+    DEBUG = True
+    TEMPLATE_DEBUG = DEBUG
+    USERDATA_DEBUG = DEBUG
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    DATABASES = values.DatabaseURLValue("postgresql://postgres:postgres@localhost:5432/postgres")
+    HUEY = {
+        'name': 'serafin',
+        'store_none': True,
+        'always_eager': False,
+        'immediate': True,
+        'consumer': {
+            'quiet': True,
+            'workers': 100,
+            'worker_type': 'greenlet',
+            'health_check_interval': 60,
+        },
+        'connection': {
+            'host': 'localhost',
+            'port': 6379
+        }
+    }
+    CONSTANCE_REDIS_CONNECTION = {
+        'host': 'localhost',
+        'port': 6379
+    }
+    TRUST_PRIVATE_IP = True
+    USE_HTTPS = False
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
 
 
 class Testing(Base):
@@ -577,7 +628,8 @@ class Testing(Base):
     TEST_DISCOVER_TOP_LEVEL = BASE_DIR
     TEST_DISCOVER_ROOT = BASE_DIR
     TEST_DISCOVER_PATTERN = 'test_*'
-
+    DATABASES = values.DatabaseURLValue("postgresql://postgres:postgres@localhost:5432/postgres")
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     HUEY = {
         'name': 'serafin',
         'store_none': True,
@@ -590,53 +642,23 @@ class Testing(Base):
             'health_check_interval': 60,
         },
         'connection': {
-            'host': 'redis',
+            'host': 'localhost',
             'port': 6379
         }
     }
+
+    CONSTANCE_REDIS_CONNECTION = {
+        'host': 'localhost',
+        'port': 6379
+    }
+    TRUST_PRIVATE_IP = True
+    USE_HTTPS = False
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
 
 
 class Staging(Base):
-    HUEY = {
-        'name': 'serafin',
-        'store_none': True,
-        'always_eager': False,
-        'consumer': {
-            'quiet': True,
-            'workers': 100,
-            'worker_type': 'greenlet',
-            'health_check_interval': 60,
-        },
-        'connection': {
-            'host': 'redis',
-            'port': 6379
-        }
-    }
-# TODO ADD SECRETS and env vars according to what lives on the server (check server)
-
-class Production(Base):
-    HUEY = {
-        'name': 'serafin',
-        'store_none': True,
-        'always_eager': False,
-        'consumer': {
-            'quiet': True,
-            'workers': 100,
-            'worker_type': 'greenlet',
-            'health_check_interval': 60,
-        },
-        'connection': {
-            'host': 'redis',
-            'port': 6379
-        }
-    }
-
-    AWS_ACCESS_KEY_ID = ''
-    AWS_SECRET_ACCESS_KEY = ''
-    AWS_STORAGE_BUCKET_NAME = ''
-    AWS_S3_CUSTOM_DOMAIN = ''
-    PUBLIC_MEDIA_LOCATION = 'media'
-
     FILER_STORAGES = {
         'public': {
             'main': {
@@ -659,4 +681,28 @@ class Production(Base):
             }
         }
     }
-# TODO: add all secrets from server...
+
+
+class Production(Base):
+    FILER_STORAGES = {
+        'public': {
+            'main': {
+                'ENGINE': 'storages.backends.s3boto3.S3Boto3Storage',
+                'OPTIONS': {
+                    'location': 'media',
+                    'default_acl': 'public-read',
+                    'file_overwrite': False
+                },
+                'UPLOAD_TO': 'filer.utils.generate_filename.randomized',
+                'UPLOAD_TO_PREFIX': 'public',
+            },
+            'thumbnails': {
+                'ENGINE': 'storages.backends.s3boto3.S3Boto3Storage',
+                'OPTIONS': {
+                    'location': 'media',
+                    'default_acl': 'public-read',
+                    'file_overwrite': False
+                }
+            }
+        }
+    }

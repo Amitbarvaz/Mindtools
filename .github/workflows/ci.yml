@@ -48,6 +48,6 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction
       - name: Run tests
-        run: poetry run python manage.py test -v 3 --settings=serafin.settings --configuration=Testing
+        run: DATABASE_URL=$DATABASE_URL poetry run python manage.py test -v 3 --settings=serafin.settings --configuration=Testing
         env:
           DATABASE_URL=postgresql://postgres:postgres@db/postgres

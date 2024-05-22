@@ -49,3 +49,5 @@ jobs:
         run: poetry install --no-interaction
       - name: Run tests
         run: poetry run python manage.py test -v 3 --settings=serafin.settings --configuration=Testing
+        env:
+          DATABASE_URL=postgresql://postgres:postgres@db/postgres

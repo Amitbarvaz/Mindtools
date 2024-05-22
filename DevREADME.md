@@ -30,13 +30,8 @@ enter projects directory and install dependencies using Poetry. Poetry will look
 5. Setup Frontend requirements
    While at the root directory of the project
    ```
-   nvm use
-   npm install bower
-   bower install
-   npm install --prefix ./staticfiles/lib/ jsplumb@1.7.9
-   mv ./staticfiles/lib/node_modules/jsplumb/ ./staticfiles/lib/jsplumb/
-   rm ./staticfiles/lib/package.json ./staticfiles/lib/package-lock.json ./staticfiles/lib/node_modules/.package-lock.json
-   rmdir ./staticfiles/lib/node_modules/
+   chmod +x ./setup_scripts/frontend_setup.sh
+   ./frontend_setup.sh
    ```
 6. Create a superuser for yourself to start working
     ```

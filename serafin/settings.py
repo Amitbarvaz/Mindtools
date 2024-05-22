@@ -517,11 +517,13 @@ class Base(Configuration):
         )),
     ])
 
-    CONSTANCE_REDIS_CONNECTION = {
-        'host': 'redis',
-        'password': REDIS_PASSWORD,
-        'port': 6379
-    }
+    @property
+    def CONSTANCE_REDIS_CONNECTION(self):
+        return {
+            'host': 'redis',
+            'password': self.REDIS_PASSWORD,
+            'port': 6379
+        }
 
     # Request
 
@@ -560,10 +562,12 @@ class Base(Configuration):
         'GOOGLE_ANALYTICS_ID',
     ]
 
-    # TODO: update this...
-    DEFENDER_REDIS_URL = 'redis://' + CONSTANCE_REDIS_CONNECTION['password'] + '@' + CONSTANCE_REDIS_CONNECTION[
-        'host'] + ':' + str(CONSTANCE_REDIS_CONNECTION['port']) \
-                         + '/0'
+    @property
+    def DEFENDER_REDIS_URL(self):
+        return 'redis://' + self.CONSTANCE_REDIS_CONNECTION['password'] + '@' + self.CONSTANCE_REDIS_CONNECTION[
+            'host'] + ':' + str(self.CONSTANCE_REDIS_CONNECTION['port']) \
+            + '/0'
+
     DEFENDER_LOGIN_FAILURE_LIMIT = 5
     DEFENDER_COOLOFF_TIME = 0
     DEFENDER_LOCKOUT_TEMPLATE = 'login_lock.html'
@@ -615,6 +619,9 @@ class Development(Base):
         'host': 'localhost',
         'port': 6379
     }
+    DEFENDER_REDIS_URL = 'redis://' + CONSTANCE_REDIS_CONNECTION['host'] + ':' + str(CONSTANCE_REDIS_CONNECTION['port']) \
+                         + '/0'
+
     TRUST_PRIVATE_IP = True
     USE_HTTPS = False
     SECURE_SSL_REDIRECT = False
@@ -651,6 +658,9 @@ class Testing(Base):
         'host': 'localhost',
         'port': 6379
     }
+    DEFENDER_REDIS_URL = 'redis://' + CONSTANCE_REDIS_CONNECTION['host'] + ':' + str(CONSTANCE_REDIS_CONNECTION['port']) \
+                         + '/0'
+
     TRUST_PRIVATE_IP = True
     USE_HTTPS = False
     SECURE_SSL_REDIRECT = False

@@ -280,7 +280,7 @@ class UserAdmin(UserAdmin, ImportExportModelAdmin):
         obj.secondary_phone = '0'
         obj.save()
 
-    resource_class = UserResource
+    resource_classes = (UserResource,)
 
     class Media(object):
         css = {

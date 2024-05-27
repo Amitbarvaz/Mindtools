@@ -33,7 +33,7 @@ class UserResource(resources.ModelResource):
                 continue
             obj.data[key] = data[key]
 
-    def export_resource(self, obj):
+    def export_resource(self, obj, fields):
         fields = [self.export_field(field, obj) for field in self.get_fields() if field.column_name not in ['...']]
 
         for field in self.data_headers:
@@ -44,7 +44,7 @@ class UserResource(resources.ModelResource):
 
         return fields
 
-    def get_export_headers(self):
+    def get_export_headers(self, fields):
         headers = [field.column_name for field in self.get_fields() if field.column_name not in ['...']]
         queryset = self.get_queryset()
 
@@ -67,11 +67,11 @@ class UserResource(resources.ModelResource):
 
     class Meta(object):
         model = User
-        export_order = [
+        export_order = (
             'id',
             'groups',
             'data'
-        ]
+        )
         exclude = [
             'email',
             'phone',

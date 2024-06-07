@@ -1,5 +1,4 @@
-FROM python:3.10-slim-bullseye
-
+FROM python:3.11-slim-bookworm
 RUN apt-get update
 RUN apt-get install -y curl
 
@@ -8,15 +7,16 @@ RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - && \
     rm -rf /usr/local/bin/node* && \
     rm -rf /usr/local/bin/npm* && \
     rm -rf /etc/apt/sources.list.d/nodesource.list && \
-    apt-get install -y nodejs && \
-    apt-get install -y npm && \
+    apt install -y nodejs && \
+    apt install -y npm && \
     npm install -g bower
 
 RUN set -ex \
     # install system build deps
-&&  apt update &&  apt install -y gcc \
+&&  apt install -y gcc \
     # install system runtime deps
 &&  apt install -y libpq-dev \
+&&  apt install -y libpango-1.0-0 libpangoft2-1.0-0 \
     # install python app requirements
 &&  pip install poetry
 
@@ -41,7 +41,7 @@ RUN rm -fr django-multisite django-multisite.tar.gz django_multisite.egg-info
 COPY poetry.lock pyproject.toml ./
 
 RUN poetry config virtualenvs.create false \
-  && poetry install --no-interaction --no-ansi  \
+  && poetry lock --no-update && poetry install --no-interaction --no-ansi  \
   &&  rm -rf ~/.cache poetry.lock pyproject.toml \
     # remove system build deps
   &&  apt purge -y --autoremove gcc

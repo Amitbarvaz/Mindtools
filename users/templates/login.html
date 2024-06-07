@@ -45,7 +45,8 @@
         {% if form.errors %}
             <div class="login-wrong-password">
                 {% trans 'Wrong email or password' %}
-                <p>לעזרה טכנית פנו למייל {{ settings.SUPPORT_EMAIL }}</p>
+                <br />
+                לעזרה טכנית פנו למייל {{ settings.SUPPORT_EMAIL }}
             </div>
         {% endif %}
         <form action="{% url 'login' %}" method="post" class="login-form">

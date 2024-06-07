@@ -132,6 +132,7 @@ class Program(models.Model):
                                             through='ProgramGoldVariable')
 
     is_lock = models.BooleanField(_('is program lock'), default=False)
+    default_program_start_time = models.TimeField(_('default program start time'), null=True, blank=True)
 
     def __str__(self):
         return self.title
@@ -144,10 +145,15 @@ class Program(models.Model):
         return self.title
 
     def enroll(self, user, start_time=None, time_factor=None):
+        if start_time is None:
+            start_time = timezone.localtime(timezone.now())
+            if self.default_program_start_time is not None and (start_time.hour > self.default_program_start_time.hour or (start_time.hour == self.default_program_start_time.hour and start_time.minute > self.default_program_start_time.minute)):
+                    start_time = start_time.replace(hour=self.default_program_start_time.hour, minute=self.default_program_start_time.minute, second=self.default_program_start_time.second)
+
         ProgramUserAccess.objects.create(
             program=self,
             user=user,
-            start_time=start_time or timezone.now(),
+            start_time=start_time,
             time_factor=time_factor or 1.0
         )
         return True

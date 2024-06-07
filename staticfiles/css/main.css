@@ -1162,7 +1162,7 @@ and (-webkit-min-device-pixel-ratio: 0.75) {
     .login-inner-box {
         position: absolute;
         width: 560px;
-        height: 421px;
+        height: 490px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -1170,6 +1170,8 @@ and (-webkit-min-device-pixel-ratio: 0.75) {
         background: #FFFEF8;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
         border-radius: 3px;
+
+        margin-top: 40px;
     }
 
     .change-password-inner-box {

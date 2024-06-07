@@ -17,10 +17,11 @@ services:
       - app
 
   db:
-    image: postgres
+    image: postgres:13.1
     container_name: mindtools-postgres
     volumes:
-      - ./data:/var/lib/postgresql/data
+      - ./data/postgres_init_db.sql:/docker-entrypoint-initdb.d/postgres_init_db.sql
+      - ./data/postgres:/var/lib/postgresql/data
     ports:
       - '5432:5432'
     environment:
@@ -50,10 +51,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: mindtools-app-image
     environment:
       - DJANGO_ALLOWED_HOSTS=app,localhost,127.0.0.1
       - DJANGO_SETTINGS_MODULE=serafin.settings
       - DJANGO_CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://app:8000,http://127.0.0.1:8000
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
 
     command:
       - bash
@@ -84,13 +87,12 @@ services:
         condition: service_healthy
 
   huey:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: mindtools-app-image
     environment:
       - DJANGO_ALLOWED_HOSTS=app,localhost,127.0.0.1
       - DJANGO_SETTINGS_MODULE=serafin.settings
       - DJANGO_CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://app:8000,http://127.0.0.1:8000
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
 
     volumes:
       - ./data/static:/static
@@ -99,7 +101,4 @@ services:
 
     command: python manage.py run_huey --disable-autoload
     depends_on:
-      redis:
-        condition: service_healthy
-      db:
-        condition: service_healthy
+      - app

@@ -32,7 +32,8 @@ class Base(Configuration):
     USERDATA_DEBUG = DEBUG
     RATELIMIT_ENABLE = True
 
-    ALLOWED_HOSTS = values.ListValue([])  # Would be passed from above in the ecs task
+    ALLOWED_HOSTS = values.ListValue([])
+    CSRF_TRUSTED_ORIGINS = values.ListValue([])
     CORS_ALLOWED_ORIGINS = values.ListValue([])
 
     # Application definition
@@ -156,12 +157,12 @@ class Base(Configuration):
     # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
     STATIC_URL = '/static/'
-    STATIC_ROOT = BASE_DIR / 'static'
+    STATIC_ROOT = values.Value(BASE_DIR / 'static')
 
     COMPRESS_ENABLED = False
 
     MEDIA_URL = '/media/'
-    MEDIA_ROOT = BASE_DIR / 'media'
+    MEDIA_ROOT = values.Value(BASE_DIR / 'media')
 
     STATICFILES_DIRS = (
         os.path.join(BASE_DIR, 'staticfiles'),
@@ -263,8 +264,9 @@ class Base(Configuration):
 
     REDIS_PASSWORD = values.Value()
     # Huey
-
-    HUEY = {
+    @property
+    def HUEY(self):
+        return  {
         'name': 'serafin',
         'store_none': True,
         'always_eager': False,
@@ -277,7 +279,7 @@ class Base(Configuration):
         },
         'connection': {
             'host': 'redis',
-            'password': REDIS_PASSWORD,
+            'password': self.REDIS_PASSWORD,
             'port': 6379
         }
     }
@@ -564,7 +566,7 @@ class Base(Configuration):
 
     @property
     def DEFENDER_REDIS_URL(self):
-        return 'redis://' + self.CONSTANCE_REDIS_CONNECTION['password'] + '@' + self.CONSTANCE_REDIS_CONNECTION[
+        return 'redis://:' + self.CONSTANCE_REDIS_CONNECTION['password'] + '@' + self.CONSTANCE_REDIS_CONNECTION[
             'host'] + ':' + str(self.CONSTANCE_REDIS_CONNECTION['port']) \
             + '/0'
 
@@ -669,28 +671,7 @@ class Testing(Base):
 
 
 class Staging(Base):
-    FILER_STORAGES = {
-        'public': {
-            'main': {
-                'ENGINE': 'storages.backends.s3boto3.S3Boto3Storage',
-                'OPTIONS': {
-                    'location': 'media',
-                    'default_acl': 'public-read',
-                    'file_overwrite': False
-                },
-                'UPLOAD_TO': 'filer.utils.generate_filename.randomized',
-                'UPLOAD_TO_PREFIX': 'public',
-            },
-            'thumbnails': {
-                'ENGINE': 'storages.backends.s3boto3.S3Boto3Storage',
-                'OPTIONS': {
-                    'location': 'media',
-                    'default_acl': 'public-read',
-                    'file_overwrite': False
-                }
-            }
-        }
-    }
+    pass
 
 
 class Production(Base):

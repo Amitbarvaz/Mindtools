@@ -4,4 +4,6 @@
 env
 docs
 static
+media
 staticfiles/lib
+backups

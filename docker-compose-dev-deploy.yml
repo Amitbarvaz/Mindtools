@@ -2,6 +2,7 @@ version: "3.9"
 
 services:
 
+  # TODO reference correct conf file...
   nginx:
     build:
       context: ./nginx

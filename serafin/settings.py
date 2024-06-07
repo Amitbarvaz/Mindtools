@@ -575,6 +575,7 @@ class Base(Configuration):
     DEFENDER_COOLOFF_TIME = 0
     DEFENDER_LOCKOUT_TEMPLATE = 'login_lock.html'
     DEFENDER_LOGIN_FAILURE_LIMIT_IP = 100
+    DEFENDER_BEHIND_REVERSE_PROXY = True
 
     RESTRICT_ADMIN = True
     ALLOWED_ADMIN_IPS = values.ListValue(['127.0.0.1', '::1'])

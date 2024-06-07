@@ -11,13 +11,13 @@
     <title>{% trans 'Log in' %}</title>
 
     {% compress css %}
-    {% if lang_dir %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/main-mobile.css' %}">
-    {% else %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/main_en.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/main-mobile_en.css' %}">
-    {% endif %}
+        {% if lang_dir %}
+            <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+            <link rel="stylesheet" type="text/css" href="{% static 'css/main-mobile.css' %}">
+        {% else %}
+            <link rel="stylesheet" type="text/css" href="{% static 'css/main_en.css' %}">
+            <link rel="stylesheet" type="text/css" href="{% static 'css/main-mobile_en.css' %}">
+        {% endif %}
     {% endcompress %}
     <script src="{% static 'js/jquery.min.js' %}"></script>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;500;700&display=swap" rel="stylesheet">
@@ -25,44 +25,49 @@
 
 </head>
 <body>
-    <form action="{% url 'set_language' %}" method="post" class="change-language">
-        {% csrf_token %}
-        <input name="next" type="hidden" value="{{ redirect_to }}">
-        {% get_current_language as LANGUAGE_CODE %}
-        {% get_available_languages as LANGUAGES %}
-        {% get_language_info_list for LANGUAGES as languages %}
-        <input name="language" type="hidden" value="{{ LANGUAGE_CODE }}">
-        {% for language in languages %}
-            <a href="javascript:void(0)" onclick="changeLanguage('{{ language.code }}')">{{ language.name_local }}</a>
-        {% endfor %}
-    </form>
+<form action="{% url 'set_language' %}" method="post" class="change-language">
+    {% csrf_token %}
+    <input name="next" type="hidden" value="{{ redirect_to }}">
+    {% get_current_language as LANGUAGE_CODE %}
+    {% get_available_languages as LANGUAGES %}
+    {% get_language_info_list for LANGUAGES as languages %}
+    <input name="language" type="hidden" value="{{ LANGUAGE_CODE }}">
+    {% for language in languages %}
+        <a href="javascript:void(0)" onclick="changeLanguage('{{ language.code }}')">{{ language.name_local }}</a>
+    {% endfor %}
+</form>
 <div class="login-page">
-<div class="login-welcome">
-    {% trans 'Welcome' %}
-</div>
-<div class="login-inner-box">
-    <div class="login-title">{% trans 'Login' %}</div>
-    {% if form.errors %}
-        <div class="login-wrong-password">
-            {% trans 'Wrong email or password' %}
-        </div>
-    {% endif %}
-    <form action="{% url 'login' %}" method="post" class="login-form">
-        {% csrf_token %}
-        <input type="text" name="username" class="login-input-box" dir="auto" placeholder="{% trans 'Email address' %}">
-        <input type="password" name="password" class="login-input-box" dir="auto" placeholder="{% trans 'Password' %}">
-        <i class="fas fa-eye eye-show-password eye-show-password-login" id="togglePassword"></i>
-        <input type="hidden" name="next" value="{{ next }}">
-        <input class="login-button" type="submit" value="{% trans 'Login' %}">
-        <a href="{% url 'password_reset' %}" dir="auto" class="login-forgot-password">{% trans 'Forgot your password?' %}</a>
-    </form>
-</div>
+    <div class="login-welcome">
+        {% trans 'Welcome' %}
+    </div>
+    <div class="login-inner-box">
+        <div class="login-title">{% trans 'Login' %}</div>
+        {% if form.errors %}
+            <div class="login-wrong-password">
+                {% trans 'Wrong email or password' %}
+                <p>לעזרה טכנית פנו למייל {{ settings.SUPPORT_EMAIL }}</p>
+            </div>
+        {% endif %}
+        <form action="{% url 'login' %}" method="post" class="login-form">
+            {% csrf_token %}
+            <input type="text" name="username" class="login-input-box" dir="auto"
+                   placeholder="{% trans 'Email address' %}">
+            <input type="password" name="password" class="login-input-box" dir="auto"
+                   placeholder="{% trans 'Password' %}">
+            <i class="fas fa-eye eye-show-password eye-show-password-login" id="togglePassword"></i>
+            <input type="hidden" name="next" value="{{ next }}">
+            <input class="login-button" type="submit" value="{% trans 'Login' %}">
+            <a href="{% url 'password_reset' %}" dir="auto"
+               class="login-forgot-password">{% trans 'Forgot your password?' %}</a>
+        </form>
+    </div>
 </div>
 <script>
     function changeLanguage(newLanguage) {
         $('input[name="language"]').val(newLanguage);
         $('.change-language').submit();
     }
+
     document.querySelectorAll('.eye-show-password').forEach(item => item.addEventListener('click', function (e) {
         const password = this.previousElementSibling;
         const type = password.getAttribute('type') === 'password' ? 'text' : 'password';

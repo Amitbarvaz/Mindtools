@@ -562,6 +562,7 @@ class Base(Configuration):
     SETTINGS_EXPORT = [
         'DEBUG',
         'GOOGLE_ANALYTICS_ID',
+        'SUPPORT_EMAIL'
     ]
 
     @property

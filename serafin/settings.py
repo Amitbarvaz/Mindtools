@@ -602,7 +602,7 @@ class Development(Base):
     TEMPLATE_DEBUG = DEBUG
     USERDATA_DEBUG = DEBUG
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    DATABASES = values.DatabaseURLValue("postgresql://postgres:postgres@localhost:5432/postgres")
+    DATABASES = values.DatabaseURLValue("postgresql://serafin_user:serafin_pass@localhost:5433/serafin_db")
     HUEY = {
         'name': 'serafin',
         'store_none': True,
@@ -639,7 +639,7 @@ class Testing(Base):
     TEST_DISCOVER_TOP_LEVEL = BASE_DIR
     TEST_DISCOVER_ROOT = BASE_DIR
     TEST_DISCOVER_PATTERN = 'test_*'
-    DATABASES = values.DatabaseURLValue("postgresql://postgres:postgres@localhost:5432/postgres")
+    DATABASES = values.DatabaseURLValue("postgresql://serafin_user:serafin_pass@localhost:5433/serafin_db")
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     HUEY = {
         'name': 'serafin',

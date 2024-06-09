@@ -436,7 +436,7 @@ class EngineTestCase(TestCase):
         self.assertEqual(page, self.page_first_complex)
 
         # the next edge is a session node, should return the first page of that node
-        engine = Engine(user=self.user)
+        engine = Engine(user=registered_user)
         page = engine.run(next=True)
         self.assertEqual(page, self.page_first)
 

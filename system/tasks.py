@@ -15,7 +15,7 @@ import logging
 logger = logging.getLogger('debug')
 
 def _rewrite_node_if_needed(engine, original_session_id, original_node_id):
-    engine.user.refresh_from_db()
+    engine.refresh_user()
     current_user_session_id = engine.user.data.get('session')
     current_user_node_id = engine.user.data.get('node')
 
@@ -93,7 +93,7 @@ def init_session(session_id, user_id, push=False):
     engine.run()
     _rewrite_node_if_needed(engine, user_session_id, user_node_id)
 
-    engine.user.refresh_from_db()
+    engine.refresh_user()
     if engine.session.trigger_login:
         engine.user.send_login_link()
         message = _('Session initialized and login e-mail sent')

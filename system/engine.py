@@ -15,6 +15,7 @@ from django.utils import timezone
 from events.signals import log_event
 from system.models import Variable, Session, Page, Email, SMS, TherapistNotification
 from tasker.models import Task
+from users.models import StatefulAnonymousUser
 from .expressions import Parser
 
 import logging
@@ -47,7 +48,7 @@ class Engine(object):
 
         if user:
             self.user = user
-            self.user.refresh_from_db()
+            self.refresh_user()
         else:
             self.user = get_user_model().objects.get(id=user_id)
 
@@ -265,7 +266,7 @@ class Engine(object):
         if node_type == 'start':
             return self.transition(node_id)
 
-        self.user.refresh_from_db()
+        self.refresh_user()
         if node_type == 'page':
 
             page = Page.objects.get(id=ref_id)
@@ -639,7 +640,7 @@ class Engine(object):
             '%s %s run, next %s, pop %s, chapter %s',
             self.user, self.session, next, pop, chapter
         )
-        self.user.refresh_from_db()
+        self.refresh_user()
 
         node_id = self.node_id if self.node_id is not None else self.user.data.get('node')
 
@@ -710,3 +711,8 @@ class Engine(object):
         if self.is_end_session(node_id):
             return None
         return self.trigger_node(node)
+
+    def refresh_user(self):
+        # TODO: is this hacky or correct?
+        if not isinstance(self.user, StatefulAnonymousUser):
+            self.user.refresh_from_db()

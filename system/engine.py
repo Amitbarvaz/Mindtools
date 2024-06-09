@@ -47,6 +47,7 @@ class Engine(object):
 
         if user:
             self.user = user
+            self.user.refresh_from_db()
         else:
             self.user = get_user_model().objects.get(id=user_id)
 
@@ -264,6 +265,7 @@ class Engine(object):
         if node_type == 'start':
             return self.transition(node_id)
 
+        self.user.refresh_from_db()
         if node_type == 'page':
 
             page = Page.objects.get(id=ref_id)
@@ -637,6 +639,7 @@ class Engine(object):
             '%s %s run, next %s, pop %s, chapter %s',
             self.user, self.session, next, pop, chapter
         )
+        self.user.refresh_from_db()
 
         node_id = self.node_id if self.node_id is not None else self.user.data.get('node')
 

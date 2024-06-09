@@ -122,6 +122,7 @@ class Parser(object):
     def __init__(self, user_obj=None):
 
         self.user = user_obj
+        self.user.refresh_from_db()
         self.bnf = self._get_bnf()
         self.stack = []
 

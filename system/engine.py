@@ -714,5 +714,5 @@ class Engine(object):
 
     def refresh_user(self):
         # TODO: is this hacky or correct?
-        if not isinstance(self.user, StatefulAnonymousUser):
+        if not isinstance(self.user, StatefulAnonymousUser) and self.user.pk:
             self.user.refresh_from_db()

@@ -9,7 +9,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% trans 'Log in' %}</title>
-
+    {% include 'sentry.html' %}
     {% compress css %}
         {% if lang_dir %}
             <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
@@ -45,7 +45,7 @@
         {% if form.errors %}
             <div class="login-wrong-password">
                 {% trans 'Wrong email or password' %}
-                <br />
+                <br/>
                 לעזרה טכנית פנו למייל {{ settings.SUPPORT_EMAIL }}
             </div>
         {% endif %}

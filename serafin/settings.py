@@ -563,6 +563,8 @@ class Base(Configuration):
     )
 
     SETTINGS_EXPORT = [
+        'FRONTEND_SENTRY_DSN'
+        'SITE_ENVIRONMENT'
         'DEBUG',
         'GOOGLE_ANALYTICS_ID',
         'SUPPORT_EMAIL'
@@ -600,6 +602,8 @@ class Base(Configuration):
     DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
 
     SENTRY_DSN = values.Value('')
+    FRONTEND_SENTRY_DSN = values.Value('https://js.sentry-cdn.com/2b1844c1cf3609114b8e8ac1931f5750.min.js')
+    SITE_ENVIRONMENT = "Development"
 
 
 class Development(Base):
@@ -678,6 +682,8 @@ class Testing(Base):
 
 
 class Staging(Base):
+    SITE_ENVIRONMENT = "Staging"
+
     @classmethod
     def post_setup(cls):
         """Sentry initialization"""
@@ -687,11 +693,13 @@ class Staging(Base):
             integrations=[DjangoIntegration()],
             traces_sample_rate=0.25,
             environment="staging",
-            send_default_pii=False
+            send_default_pii=True
         )
 
 
 class Production(Base):
+    SITE_ENVIRONMENT = "Production"
+
     FILER_STORAGES = {
         'public': {
             'main': {

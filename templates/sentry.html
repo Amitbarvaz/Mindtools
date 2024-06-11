@@ -1,11 +1,11 @@
 <script
-        src={{ settings.FRONTEND_SENTRY_DSN }}
-                crossorigin="anonymous"
+        src="{{ settings.FRONTEND_SENTRY_DSN }}"
+        crossorigin="anonymous"
 ></script>
 <script>
     Sentry.onLoad(function () {
         Sentry.init({
-            environment: {{ settings.SITE_ENVIRONMENT }},
+            environment: "{{ settings.SITE_ENVIRONMENT }}",
             // Performance Monitoring
             tracesSampleRate: {% if settings.SITE_ENVIRONMENT == "Production" %}0.01{% else %}0.25{% endif %}, // Capture 100% of the transactions
             // Session Replay

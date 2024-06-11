@@ -7,3 +7,5 @@ static
 media
 staticfiles/lib
 backups
+data/
+.docker-data/

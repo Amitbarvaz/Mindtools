@@ -563,8 +563,8 @@ class Base(Configuration):
     )
 
     SETTINGS_EXPORT = [
-        'FRONTEND_SENTRY_DSN'
-        'SITE_ENVIRONMENT'
+        'FRONTEND_SENTRY_DSN',
+        'SITE_ENVIRONMENT',
         'DEBUG',
         'GOOGLE_ANALYTICS_ID',
         'SUPPORT_EMAIL'
@@ -624,12 +624,12 @@ class Development(Base):
             'health_check_interval': 60,
         },
         'connection': {
-            'host': 'localhost',
+            'host': 'redis',
             'port': 6379
         }
     }
     CONSTANCE_REDIS_CONNECTION = {
-        'host': 'localhost',
+        'host': 'redis',
         'port': 6379
     }
     DEFENDER_REDIS_URL = 'redis://' + CONSTANCE_REDIS_CONNECTION['host'] + ':' + str(CONSTANCE_REDIS_CONNECTION['port']) \

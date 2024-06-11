@@ -94,6 +94,7 @@ backports-csv = "^1.0.7"
 django-ipware = "^7.0.1"
 django-configurations = {extras = ["database"], version = "^2.5.1"}
 psycopg2 = "^2.9.9"
+sentry-sdk = {extras = ["django"], version = "^2.5.1"}
 
 [tool.poetry.dependencies.django-suit-v2-pm]
 git = "https://github.com/pulse-mind/django-suit.git"

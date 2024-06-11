@@ -602,7 +602,7 @@ class Base(Configuration):
     DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
 
     SENTRY_DSN = values.Value('')
-    FRONTEND_SENTRY_DSN = values.Value('https://js.sentry-cdn.com/2b1844c1cf3609114b8e8ac1931f5750.min.js')
+    FRONTEND_SENTRY_DSN = values.Value('')
     SITE_ENVIRONMENT = "Development"
 
 

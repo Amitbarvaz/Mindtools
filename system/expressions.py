@@ -124,6 +124,8 @@ class Parser(object):
         self.user = user_obj
         # TODO: I want to refresh here, but tests always return "user does not exist... should I save somewhere before?"
         # self.user.refresh_from_db()
+        if self.user.pk:
+            self.user.refresh_from_db()
         self.bnf = self._get_bnf()
         self.stack = []
 

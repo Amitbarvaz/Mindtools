@@ -9,12 +9,14 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 '''
 
 import os
+import sentry_sdk
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from collections import OrderedDict
 from pathlib import Path
 
 from configurations import Configuration, values
 from django.utils.translation import gettext_lazy as _
+from sentry_sdk.integrations.django import DjangoIntegration
 
 
 class Base(Configuration):
@@ -263,26 +265,27 @@ class Base(Configuration):
     GOOGLE_ANALYTICS_ID = ''
 
     REDIS_PASSWORD = values.Value()
+
     # Huey
     @property
     def HUEY(self):
-        return  {
-        'name': 'serafin',
-        'store_none': True,
-        'always_eager': False,
-        'immediate': False,
-        'consumer': {
-            'quiet': True,
-            'workers': 100,
-            'worker_type': 'greenlet',
-            'health_check_interval': 60,
-        },
-        'connection': {
-            'host': 'redis',
-            'password': self.REDIS_PASSWORD,
-            'port': 6379
+        return {
+            'name': 'serafin',
+            'store_none': True,
+            'always_eager': False,
+            'immediate': False,
+            'consumer': {
+                'quiet': True,
+                'workers': 100,
+                'worker_type': 'greenlet',
+                'health_check_interval': 60,
+            },
+            'connection': {
+                'host': 'redis',
+                'password': self.REDIS_PASSWORD,
+                'port': 6379
+            }
         }
-    }
 
     # REST Framework
 
@@ -596,6 +599,8 @@ class Base(Configuration):
     FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600
     DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
 
+    SENTRY_DSN = values.Value('')
+
 
 class Development(Base):
     DEBUG = True
@@ -673,7 +678,17 @@ class Testing(Base):
 
 
 class Staging(Base):
-    pass
+    @classmethod
+    def post_setup(cls):
+        """Sentry initialization"""
+        super(Staging, cls).post_setup()
+        sentry_sdk.init(
+            dsn=cls.SENTRY_DSN,
+            integrations=[DjangoIntegration()],
+            traces_sample_rate=0.25,
+            environment="staging",
+            send_default_pii=False
+        )
 
 
 class Production(Base):
@@ -699,3 +714,15 @@ class Production(Base):
             }
         }
     }
+
+    @classmethod
+    def post_setup(cls):
+        """Sentry initialization"""
+        super(Production, cls).post_setup()
+        sentry_sdk.init(
+            dsn=cls.SENTRY_DSN,
+            integrations=[DjangoIntegration()],
+            traces_sample_rate=0.01,
+            environment="production",
+            send_default_pii=False
+        )

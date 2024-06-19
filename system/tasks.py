@@ -14,6 +14,7 @@ import logging
 
 logger = logging.getLogger('debug')
 
+
 def _rewrite_node_if_needed(engine, original_session_id, original_node_id):
     engine.refresh_user()
     current_user_session_id = engine.user.data.get('session')
@@ -32,15 +33,16 @@ def _rewrite_node_if_needed(engine, original_session_id, original_node_id):
         return original_node_id
     return current_user_node_id
 
+
 @db_task()
 def transition(session_id, node_id, user_id, stack=None):
     '''A task to schedule an Engine transition'''
 
     logger.debug('transition called with session_id=%s, node_id=%s, user_id=%s, stack=%s',
-                session_id,
-                node_id,
-                user_id,
-                stack)
+                 session_id,
+                 node_id,
+                 user_id,
+                 stack)
     context = {
         'session': session_id,
         'node': node_id,
@@ -71,9 +73,9 @@ def init_session(session_id, user_id, push=False):
     '''Initialize a given session from start and traverse on behalf of user'''
 
     logger.debug('init_session called with session_id=%s, user_id=%s, push=%s',
-                session_id,
-                user_id,
-                push)
+                 session_id,
+                 user_id,
+                 push)
     context = {
         'session': session_id,
         'node': 0,
@@ -104,8 +106,9 @@ def init_session(session_id, user_id, push=False):
         useraccess = engine.user.get_first_program_user_access(original_session.program)
         if original_session.get_end_time(useraccess.start_time, useraccess.time_factor) > \
                 original_session.get_next_time(useraccess.start_time, useraccess.time_factor):
-
             next_time = original_session.get_next_time(useraccess.start_time, useraccess.time_factor)
+            logger.debug(
+                f"{user_id} {session_id} Init session recurrent. Original Session {original_session} end time - {original_session.get_end_time(useraccess.start_time, useraccess.time_factor)}, original session next time {next_time} ")
             Task.objects.create_task(
                 sender=original_session,
                 domain='init',

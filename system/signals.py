@@ -17,6 +17,10 @@ from .models import Variable, ProgramUserAccess, Session, Content, Page
 from tasker.models import Task
 from system.tasks import init_session
 
+import logging
+
+logger = logging.getLogger('debug')
+
 
 def disable_for_loaddata(signal_handler):
     '''Turn of signal handling for loaddata'''
@@ -60,31 +64,32 @@ def randomize_variable_once(sender, **kwargs):
 
 
 def execute_schedule_sessions(sender, **kwargs):
-
     useraccess = kwargs['instance']
 
     if not useraccess.user.is_active:
         return
-
+    logger.debug(f"Schedule sessions on programuseraccess post_save for user {useraccess.user}")
     session_type = ContentType.objects.get_for_model(Session)
     for session in useraccess.program.session_set.all():
 
-        Task.objects.filter(
+        task_qs = Task.objects.filter(
             content_type=session_type,
             object_id=session.id,
             subject=useraccess.user
-        ).delete()
+        )
+        logger.debug(f"{useraccess.user} {session.id} Delete Tasks {', '.join([' '.join((str(task), task.task_id)) for task in task_qs])}")
+
+        task_qs.delete()
 
         if not useraccess.user.is_active:
             continue
 
         if session.scheduled:
-
             start_time = session.get_start_time(
                 useraccess.start_time,
                 useraccess.time_factor
             )
-
+            logger.debug(f"{useraccess.user.id} {session} Init Session, start time {start_time}")
             Task.objects.create_task(
                 sender=session,
                 domain='init',
@@ -105,7 +110,6 @@ def schedule_sessions(sender, **kwargs):
 @receiver(signals.pre_save, sender=Session)
 @disable_for_loaddata
 def session_pre_save(sender, **kwargs):
-
     session = kwargs['instance']
 
     nodes = session.data.get('nodes', [])
@@ -140,7 +144,6 @@ def session_pre_save(sender, **kwargs):
 
     first_useraccess = session.program.programuseraccess_set.order_by('start_time').first()
     if first_useraccess and session.scheduled:
-
         session.start_time = session.get_start_time(
             first_useraccess.start_time,
             first_useraccess.time_factor
@@ -149,7 +152,6 @@ def session_pre_save(sender, **kwargs):
 
 @receiver(signals.post_save, sender=Session)
 def add_content_relations(sender, **kwargs):
-
     session = kwargs['instance']
 
     session.content.clear()
@@ -165,10 +167,10 @@ def add_content_relations(sender, **kwargs):
 @receiver(signals.post_save, sender=Session)
 @disable_for_loaddata
 def schedule_session(sender, **kwargs):
-
     session = kwargs['instance']
 
     if kwargs['created'] and session.scheduled:
+        logger.debug(f"Create tasks on session create {session}")
         for useraccess in session.program.programuseraccess_set.all():
 
             if not useraccess.user.is_active:
@@ -180,6 +182,8 @@ def schedule_session(sender, **kwargs):
             )
 
             if start_time > timezone.localtime(timezone.now()):
+                logger.debug(
+                    f"{useraccess.user.id} {session}Create Task - Init Session, start_time > localtime now. {start_time} > {timezone.localtime(timezone.now())}")
                 Task.objects.create_task(
                     sender=session,
                     domain='init',
@@ -192,6 +196,8 @@ def schedule_session(sender, **kwargs):
             elif session.get_end_time(useraccess.start_time, useraccess.time_factor) > \
                     session.get_next_time(useraccess.start_time, useraccess.time_factor):
                 next_time = session.get_next_time(useraccess.start_time, useraccess.time_factor)
+                logger.debug(
+                    f"{useraccess.user.id} {session}Create Task - Init Session Recurrent, end_time > next_time. {session.get_end_time(useraccess.start_time, useraccess.time_factor)} > {next_time}")
                 Task.objects.create_task(
                     sender=session,
                     domain='init',
@@ -205,19 +211,21 @@ def schedule_session(sender, **kwargs):
 
 @receiver(signals.post_save, sender=Session)
 def reschedule_session(sender, **kwargs):
-
     session = kwargs['instance']
 
     if not kwargs['created']:
+        logger.debug(f"Create tasks on existing session resave {session}")
         session_type = ContentType.objects.get_for_model(Session)
         for useraccess in session.program.programuseraccess_set.all():
 
-            Task.objects.filter(
+            task_qs = Task.objects.filter(
                 content_type=session_type,
                 object_id=session.id,
                 subject=useraccess.user,
                 time__gt=timezone.localtime(timezone.now())
-            ).delete()
+            )
+            logger.debug(f"{useraccess.user} {session.id} Delete Tasks {', '.join([' '.join((str(task), task.task_id)) for task in task_qs])}")
+            task_qs.delete()
 
             if not useraccess.user.is_active:
                 continue
@@ -228,6 +236,7 @@ def reschedule_session(sender, **kwargs):
             )
             if session.scheduled:
                 if start_time > timezone.localtime(timezone.now()):
+                    logger.debug(f"{useraccess.user.id} {session}Create Task - Init Session, start_time > timezone.now . {start_time} > {timezone.localtime(timezone.now())}")
                     Task.objects.create_task(
                         sender=session,
                         domain='init',
@@ -240,6 +249,7 @@ def reschedule_session(sender, **kwargs):
                 elif session.get_end_time(useraccess.start_time, useraccess.time_factor) > \
                         session.get_next_time(useraccess.start_time, useraccess.time_factor):
                     next_time = session.get_next_time(useraccess.start_time, useraccess.time_factor)
+                    logger.debug(f"{useraccess.user.id} {session}Create Task - Init Session Recurrent, end_time > next_time. {session.get_end_time(useraccess.start_time, useraccess.time_factor)} > {next_time}")
                     Task.objects.create_task(
                         sender=session,
                         domain='init',
@@ -253,35 +263,37 @@ def reschedule_session(sender, **kwargs):
 
 @receiver(signals.pre_delete, sender=Session)
 def revoke_session(sender, **kwargs):
-
     session = kwargs['instance']
-
+    logger.debug(f"Delete session {session}")
     session_type = ContentType.objects.get_for_model(Session)
 
-    Task.objects.filter(
+    task_qs = Task.objects.filter(
         content_type=session_type,
         object_id=session.id
-    ).delete()
+    )
+    logger.debug(f"{session} Delete Tasks {', '.join([' '.join((str(task), task.task_id)) for task in task_qs])}")
+
+    task_qs.delete()
 
 
 @receiver(signals.pre_delete, sender=ProgramUserAccess)
 def revoke_tasks(sender, **kwargs):
-
     useraccess = kwargs['instance']
 
     session_type = ContentType.objects.get_for_model(Session)
+    logger.debug(f"{useraccess.user} Revoking Tasks on pre delete programuseraccess")
     for session in useraccess.program.session_set.all():
-
-        Task.objects.filter(
+        task_qs = Task.objects.filter(
             content_type=session_type,
             object_id=session.id,
             subject=useraccess.user
-        ).delete()
+        )
+        logger.debug(f"{useraccess.user} {session.id} Delete Tasks {', '.join([' '.join((str(task), task.task_id)) for task in task_qs])}")
+        task_qs.delete()
 
 
 @receiver(signals.post_save)
 def content_post_save(sender, **kwargs):
-
     content_types = ['Page', 'Email', 'SMS']
     node_types = [t.lower() for t in content_types]
 
@@ -307,7 +319,6 @@ def content_post_save(sender, **kwargs):
         # Replace images with thumbnails
         data = content.data
         aliases.populate_from_settings()
-
 
         for pagelet in data:
 

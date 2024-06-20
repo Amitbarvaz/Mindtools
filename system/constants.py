@@ -1,4 +1,6 @@
-interval_name_mapping = {
-    "days": "hours",
+INTERVAL_PROTECTION_TIMEDELTA_UNIT_NAME_MAPPING = {
+    "days": "minutes",
     "hours": "minutes",
 }
+
+INTERVAL_PROTECTION_TIMEDELTA_UNIT_VALUE = 5

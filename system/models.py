@@ -24,13 +24,14 @@ from filer.fields.image import FilerImageField
 from jsonfield import JSONField
 from collections import OrderedDict
 
-from system.constants import interval_name_mapping
+from system.constants import INTERVAL_PROTECTION_TIMEDELTA_UNIT_NAME_MAPPING, \
+    INTERVAL_PROTECTION_TIMEDELTA_UNIT_VALUE
 from system.utils import *
 from system.expressions import Parser
 from weasyprint import HTML
 
-
 logger = logging.getLogger(__name__)
+
 
 class Variable(models.Model):
     '''A variable model allowing different options'''
@@ -152,8 +153,12 @@ class Program(models.Model):
     def enroll(self, user, start_time=None, time_factor=None):
         if start_time is None:
             start_time = timezone.localtime(timezone.now())
-            if self.default_program_start_time is not None and (start_time.hour > self.default_program_start_time.hour or (start_time.hour == self.default_program_start_time.hour and start_time.minute > self.default_program_start_time.minute)):
-                    start_time = start_time.replace(hour=self.default_program_start_time.hour, minute=self.default_program_start_time.minute, second=self.default_program_start_time.second)
+            if self.default_program_start_time is not None and (
+                    start_time.hour > self.default_program_start_time.hour or (
+                    start_time.hour == self.default_program_start_time.hour and start_time.minute > self.default_program_start_time.minute)):
+                start_time = start_time.replace(hour=self.default_program_start_time.hour,
+                                                minute=self.default_program_start_time.minute,
+                                                second=self.default_program_start_time.second)
 
         ProgramUserAccess.objects.create(
             program=self,
@@ -285,7 +290,8 @@ class Session(models.Model):
         return start_time + timedelta
 
     def get_next_time(self, start_time, time_factor):
-        logger.debug(f"session {self.id} interval - f{self.interval}, start time - {start_time}, time_factor - {time_factor}")
+        logger.debug(
+            f"session {self.id} interval - f{self.interval}, start time - {start_time}, time_factor - {time_factor}")
         if self.interval == 0:
             return start_time
         i = 1
@@ -299,7 +305,8 @@ class Session(models.Model):
                 next_time_tz_offset = timezone.localtime(start_time + timedelta).utcoffset()
                 next_time = start_time + timedelta - (next_time_tz_offset - start_time_tz_offset)
                 protection_offset_timedelta = {
-                    interval_name_mapping[self.start_time_unit]: 10
+                    INTERVAL_PROTECTION_TIMEDELTA_UNIT_NAME_MAPPING[
+                        self.start_time_unit]: INTERVAL_PROTECTION_TIMEDELTA_UNIT_VALUE
                 }
                 if next_time <= timezone.now() + datetime.timedelta(**protection_offset_timedelta):
                     i += 1

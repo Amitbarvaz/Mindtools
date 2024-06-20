@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import, unicode_literals
 
+import logging
 from builtins import object
 import datetime
 import mistune
@@ -22,10 +23,14 @@ from filer.fields.image import FilerImageField
 
 from jsonfield import JSONField
 from collections import OrderedDict
+
+from system.constants import interval_name_mapping
 from system.utils import *
 from system.expressions import Parser
 from weasyprint import HTML
 
+
+logger = logging.getLogger(__name__)
 
 class Variable(models.Model):
     '''A variable model allowing different options'''
@@ -280,6 +285,7 @@ class Session(models.Model):
         return start_time + timedelta
 
     def get_next_time(self, start_time, time_factor):
+        logger.debug(f"session {self.id} interval - f{self.interval}, start time - {start_time}, time_factor - {time_factor}")
         if self.interval == 0:
             return start_time
         i = 1
@@ -292,7 +298,10 @@ class Session(models.Model):
                 start_time_tz_offset = timezone.localtime(start_time).utcoffset()
                 next_time_tz_offset = timezone.localtime(start_time + timedelta).utcoffset()
                 next_time = start_time + timedelta - (next_time_tz_offset - start_time_tz_offset)
-                if next_time <= timezone.now():
+                protection_offset_timedelta = {
+                    interval_name_mapping[self.start_time_unit]: 10
+                }
+                if next_time <= timezone.now() + datetime.timedelta(**protection_offset_timedelta):
                     i += 1
                     continue
                 return next_time

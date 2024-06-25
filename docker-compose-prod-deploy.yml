@@ -1,17 +1,17 @@
-# TODO: update env vars according to new settings
 version: "3.9"
 
 services:
 
   nginx:
-    image: nginx:latest
+    build:
+      context: ./nginx
     container_name: mindtools-nginx
     ports:
-      - "8000:8080"
+      - "80:8080"
+      - "443:8081"
     volumes:
-      - ./nginx_compose:/etc/nginx/conf.d
-      - ./data/static:/static
-      - ./data/media:/media
+      - ./.docker-data/static:/static
+      - ./.docker-data/media:/media
 
     depends_on:
       - app
@@ -20,14 +20,13 @@ services:
     image: postgres:13.1
     container_name: mindtools-postgres
     volumes:
-      - ./data/postgres_init_db.sql:/docker-entrypoint-initdb.d/postgres_init_db.sql
-      - ./data/postgres:/var/lib/postgresql/data
+      - postgresql-volume:/var/lib/postgresql/data
     ports:
       - '5432:5432'
+    env_file:
+      - .env
     environment:
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres -p 5432" ]
       interval: 10s
@@ -37,14 +36,17 @@ services:
   redis:
     image: redis:6.0.9
     container_name: mindtools-redis
+    command: redis-server --appendonly yes --requirepass $REDIS_PASSWORD
     volumes:
       - ./.docker-data/redis:/data
+    env_file:
+      - .env
     ports:
       - '6379:6379'
     healthcheck:
-      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
-      interval: 1s
-      timeout: 3s
+      test: [ "CMD", "redis-cli", "-a", "$REDIS_PASSWORD", "ping" ]
+      interval: 10s
+      timeout: 5s
       retries: 5
 
   app:
@@ -52,11 +54,13 @@ services:
       context: .
       dockerfile: Dockerfile
     image: mindtools-app-image
+    env_file:
+      - .env  # TODO ADD SECRETS and env vars on the server
     environment:
-      - DJANGO_ALLOWED_HOSTS=app,localhost,127.0.0.1
       - DJANGO_SETTINGS_MODULE=serafin.settings
-      - DJANGO_CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://app:8000,http://127.0.0.1:8000
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+      - DJANGO_CONFIGURATION=Production
+      - DJANGO_MEDIA_ROOT=/media/
+      - DJANGO_STATIC_ROOT=/static/
 
     command:
       - bash
@@ -71,12 +75,11 @@ services:
         print('Superuser password updated successfully.')
         000
         python manage.py collectstatic --noinput
-        cp /srv/app/static/* -r /static/
         gunicorn --workers 3 serafin.wsgi --timeout 180 --bind 0.0.0.0:8000 --reload
 
     volumes:
-      - ./data/static:/static
-      - ./data/media:/media
+      - ./.docker-data/static:/static
+      - ./.docker-data/media:/media
       - .:/srv/app # Mount the local folder directly, so no need for extra build
     expose:
       - "8000"
@@ -88,17 +91,23 @@ services:
 
   huey:
     image: mindtools-app-image
+    env_file:
+      - .env     # TODO ADD SECRETS and env vars on the server
     environment:
-      - DJANGO_ALLOWED_HOSTS=app,localhost,127.0.0.1
       - DJANGO_SETTINGS_MODULE=serafin.settings
-      - DJANGO_CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://app:8000,http://127.0.0.1:8000
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+      - DJANGO_CONFIGURATION=Production
+      - DJANGO_MEDIA_ROOT=/media/
+      - DJANGO_STATIC_ROOT=/static/
 
     volumes:
-      - ./data/static:/static
-      - ./data/media:/media
+      - ./.docker-data/static:/static
+      - ./.docker-data/media:/media
       - .:/srv/app # Mount the local folder directly, so no need for extra build
 
     command: python manage.py run_huey --disable-autoload
     depends_on:
       - app
+
+volumes:
+  postgresql-volume:
+  static_data:

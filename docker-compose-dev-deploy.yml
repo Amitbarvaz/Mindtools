@@ -18,7 +18,7 @@ services:
       - app
 
   db:
-    image: postgres
+    image: postgres:13.1
     container_name: mindtools-postgres
     volumes:
       - postgresql-volume:/var/lib/postgresql/data
@@ -35,7 +35,7 @@ services:
       retries: 5
 
   redis:
-    image: redis
+    image: redis:6.0.9
     container_name: mindtools-redis
     command: redis-server --appendonly yes --requirepass $REDIS_PASSWORD
     volumes:

@@ -699,6 +699,13 @@ class Staging(Base):
 
 class Production(Base):
     SITE_ENVIRONMENT = "Production"
+    COMPRESS_ENABLED = True
+
+    STATICFILES_FINDERS = (
+        'django.contrib.staticfiles.finders.FileSystemFinder',
+        'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+        'compressor.finders.CompressorFinder'
+    )
 
     FILER_STORAGES = {
         'public': {

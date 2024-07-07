@@ -258,7 +258,7 @@ class ProgramAdmin(VersionAdmin):
     copy.short_description = _('Copy selected programs')
 
     def export_text(modeladmin, request, queryset):
-        selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
+        selected = request.POST.getlist(admin.helpers.ACTION_CHECKBOX_NAME)
         ct = ContentType.objects.get_for_model(queryset.model)
         return HttpResponseRedirect('/admin/export_text/?ct=%s&ids=%s' % (ct.pk, ','.join(selected)))
 
@@ -272,7 +272,7 @@ class ProgramAdmin(VersionAdmin):
 
     def changelist_view(self, request, extra_context=None):
         if 'action' in request.POST and request.POST['action'] == 'set_program':
-            if not request.POST.getlist(admin.ACTION_CHECKBOX_NAME):
+            if not request.POST.getlist(admin.helpers.ACTION_CHECKBOX_NAME):
                 if hasattr(request, "session"):
                     del request.session["_program_id"]
         return super(ProgramAdmin, self).changelist_view(request, extra_context)

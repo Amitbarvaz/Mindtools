@@ -24,9 +24,8 @@ handler404 = not_found_error
 urlpatterns = [
     re_path(r'^api/plumbing/', include('plumbing.urls')),
     re_path(r'^api/system/', include('system.urls')),
-
-    re_path(r'^admin/', admin.site.urls),
     re_path(r'^admin/defender/', include('defender.urls')),
+    re_path(r'^admin/', admin.site.urls),
     re_path(r'^admin/export_text/', export_text),
     re_path(r'^admin/import_text/', import_text),
     re_path(r'^admin/set_program/$', set_program, name="set_program"),

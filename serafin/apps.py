@@ -1,9 +1,10 @@
 from django.apps import AppConfig, apps
 from django.contrib import admin
-from django.contrib.admin import sites
+from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from suit.apps import DjangoSuitConfig
-from suit.menu import ParentItem, ChildItem
+from suit.menu import ChildItem, ParentItem
+
 
 class SerafinReConfig(AppConfig):
     name = 'serafin'
@@ -29,13 +30,14 @@ class SuitConfig(DjangoSuitConfig):
             'RelatedFieldWidgetWrapper': SUIT_FORM_SIZE_XXX_LARGE
         }
     }
-    
+
     verbose_name = 'Serafin Admin'
 
     menu = (
         ParentItem('Users', 'users', icon='icon-user', children=[
             ChildItem(model='user'),
-            ChildItem(model='auth.group')
+            ChildItem(model='auth.group'),
+            ChildItem(label=_("Blocked Users"), url=reverse_lazy("defender_blocks_view"))
         ]),
         ParentItem('Program', 'system', icon='icon-wrench', children=[
             ChildItem(model='program'),

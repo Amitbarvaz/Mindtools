@@ -2136,9 +2136,21 @@ msgstr "לחצ/י על ציור ה'עין' כדי לוודא שאין טעות �
 msgid "Account Locked"
 msgstr "החשבון נעול"
 
-#: .\users\templates\login_lock.html:12
-msgid "Reset Your Password"
-msgstr ""
+#: .\users\templates\login_lock.html:10
+msgid "Due to multiple login attempts, and to protect your privacy, this account has been locked."
+msgstr "עקב ניסיונות התחברות רבים, וכדי להגן על פרטיותך, חשבונך ננעל."
+
+#: .\users\templates\login_lock.html:11
+msgid "To log in, please reset your password."
+msgstr "כדי להיכנס – עליך לאפס את הסיסמה."
+
+#: .\users\templates\login_lock.html:13
+msgid "Click here to reset your password"
+msgstr "לחצ/י כאן כדי לאפס סיסמה"
+
+#: .\users\templates\login_lock.html:15
+msgid "For technical support, email:"
+msgstr "לעזרה טכנית פנה/י למייל:"
 
 #: .\users\templates\profile.html:6 .\users\templates\profile.html:15
 msgid "User profile"

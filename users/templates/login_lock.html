@@ -5,10 +5,13 @@
 {% block title %}{% trans 'Account Locked' %}{% endblock %}
 
 {% block content %}
-<div class="page">
-    <h1>{% trans 'Account Locked' %}</h1>
-    <p>Due to many login attemps, this user was locked.</p>
-    <p>Please reset your password.</p>
-    <a href="{% url 'password_reset' %}">{% trans 'Reset Your Password' %}</a>
-</div>
+    <div class="page text-center" dir="auto">
+        <h1>{% trans 'Account Locked' %}</h1>
+        <p class="text-justify">{% trans 'Due to multiple login attempts, and to protect your privacy, this account has been locked.' %}
+            <br/> {% trans 'To log in, please reset your password.' %}</p>
+        <br/><br/>
+        <a href="{% url 'password_reset' %}">{% trans 'Click here to reset your password' %}</a>
+        <br/><br/><br/><br/><br/>
+        <p style="font-size: 0.8rem; color: darkgray;">{% trans 'For technical support, email:' %} {{ settings.SUPPORT_EMAIL }}</p>
+    </div>
 {% endblock %}

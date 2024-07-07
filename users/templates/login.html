@@ -43,10 +43,14 @@
     <div class="login-inner-box">
         <div class="login-title">{% trans 'Login' %}</div>
         {% if form.errors %}
-            <div class="login-wrong-password">
-                {% trans 'Wrong email or password' %}
+            <div class="login-wrong-password" dir="auto">
+                {% trans 'Incorrect username or password.' %}
                 <br/>
-                לעזרה טכנית פנו למייל {{ settings.SUPPORT_EMAIL }}
+                {% trans 'Please note, the number of attempts is limited.' %}
+                <br/>
+                * {% trans 'Enter your username in lowercase letters only.' %}
+                <br/>
+                * {% trans "Click the 'eye' icon to verify your password." %}
             </div>
         {% endif %}
         <form action="{% url 'login' %}" method="post" class="login-form">

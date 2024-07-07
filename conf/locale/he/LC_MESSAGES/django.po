@@ -2116,9 +2116,21 @@ msgstr "ברוכים הבאים"
 msgid "Login"
 msgstr "התחברות"
 
-#: .\users\templates\login.html:44
-msgid "Wrong email or password"
-msgstr "כתובת אימייל או סיסמה שגויות"
+#: .\users\templates\login.html:47
+msgid "Incorrect username or password."
+msgstr "שם משתמש או סיסמה שגויים"
+
+#: .\users\templates\login.html:49
+msgid "Please note, the number of attempts is limited."
+msgstr "שימ/י לב, מספר הנסיונות מוגבל."
+
+#: .\users\templates\login.html:51
+msgid "Enter your username in lowercase letters only."
+msgstr "יש להקליד את שם המשתמש באותיות קטנות בלבד"
+
+#: .\users\templates\login.html:53
+msgid "Click the 'eye' icon to verify your password."
+msgstr "לחצ/י על ציור ה'עין' כדי לוודא שאין טעות בסיסמה"
 
 #: .\users\templates\login_lock.html:5 .\users\templates\login_lock.html:9
 msgid "Account Locked"

@@ -2104,6 +2104,10 @@ msgstr "צוות התכנית"
 msgid "Forgot your password?"
 msgstr "שכחת את סיסמתך?"
 
+#: .\users\templates\login-o.html:43 .\users\templates\login.html:53
+msgid "Please click here to reset"
+msgstr "לחצ/י כאן כדי לאפס סיסמה"
+
 #: .\users\templates\login.html:38
 msgid "Welcome"
 msgstr "ברוכים הבאים"

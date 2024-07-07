@@ -59,7 +59,7 @@
             <input type="hidden" name="next" value="{{ next }}">
             <input class="login-button" type="submit" value="{% trans 'Login' %}">
             <a href="{% url 'password_reset' %}" dir="auto"
-               class="login-forgot-password">{% trans 'Forgot your password?' %}</a>
+               class="login-forgot-password">{% trans 'Forgot your password?' %}<br />{% trans 'Please click here to reset' %}</a>
         </form>
     </div>
 </div>

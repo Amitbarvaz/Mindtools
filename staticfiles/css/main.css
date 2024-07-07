@@ -1251,6 +1251,7 @@ and (-webkit-min-device-pixel-ratio: 0.75) {
         color: #1B418A;
         border: 1px solid #FFFFFF;
         text-decoration-line: none;
+        text-align: center;
     }
 
     .login-inner-box-text {

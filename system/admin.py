@@ -1,26 +1,25 @@
 from __future__ import unicode_literals
 
-from builtins import str
-from builtins import object
-from django.utils.translation import gettext_lazy as _
+from builtins import object, str
+
+from adminsortable.admin import NonSortableParentAdmin, SortableStackedInline
 from django import forms
 from django.conf import settings
 from django.contrib import admin
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.db import models, IntegrityError
+from django.db import IntegrityError, models
 from django.db.models import Q
 from django.http import HttpResponseRedirect
-from adminsortable.admin import NonSortableParentAdmin, SortableStackedInline
-
-from suit.widgets import AutosizedTextarea
+from django.utils.translation import gettext_lazy as _
 from jsonfield import JSONField
 from reversion.admin import VersionAdmin
+from suit.widgets import AutosizedTextarea
 
-from system.models import Variable, Program, Session, Content, Page, Email, SMS, Chapter, Module
-from system.expressions import Parser
+from content.widgets import ContentWidget, SMSContentWidget
 from plumbing.widgets import PlumbingWidget
-from content.widgets import ContentWidget, TextContentWidget, SMSContentWidget
+from system.expressions import Parser
+from system.forms import EmailForm
+from system.models import Chapter, Content, Email, Module, Page, Program, SMS, Session, Variable
 
 
 class VariableForm(forms.ModelForm):
@@ -661,37 +660,13 @@ class PageAdmin(ContentAdmin):
     form = PageForm
 
 
-class TextContentForm(ContentForm):
-    def __init__(self, *args, **kwargs):
-        super(ContentForm, self).__init__(*args, **kwargs)
-        self.fields['data'].help_text = ''
-        self.fields['data'].initial = [{"content_type": "text", "content": ""}]
-
-
-class EmailForm(TextContentForm):
-    def __init__(self, *args, **kwargs):
-        super(EmailForm, self).__init__(*args, **kwargs)
-        self.fields['display_title'].label = _('Subject')
-
-    class Meta(object):
-        model = Email
-        exclude = []
-
-
 @admin.register(Email)
 class EmailAdmin(ContentAdmin):
     list_display = ['title', 'subject', 'note_excerpt', 'page_excerpt']
     search_fields = ['title', 'display_title', 'admin_note', 'data']
     fields = ['title', 'display_title', 'program', 'admin_note', 'data']
     form = EmailForm
-    formfield_overrides = {
-        models.TextField: {
-            'widget': AutosizedTextarea(attrs={'rows': 3, 'class': 'input-xlarge'})
-        },
-        JSONField: {
-            'widget': TextContentWidget
-        }
-    }
+    formfield_overrides = {}
 
     def subject(self, obj):
         return obj.display_title

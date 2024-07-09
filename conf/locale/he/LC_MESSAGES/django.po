@@ -2118,7 +2118,7 @@ msgstr "התחברות"
 
 #: .\users\templates\login.html:47
 msgid "Incorrect username or password."
-msgstr "שם משתמש או סיסמה שגויים"
+msgstr "שם משתמש או סיסמה שגויים."
 
 #: .\users\templates\login.html:49
 msgid "Please note, the number of attempts is limited."

@@ -1,0 +1,15 @@
+<textarea id="{{ widget.attrs.id }}-summernote" name="{{ widget.name }}"></textarea>
+<script>
+    $(document).ready(function() {
+        $('#{{ widget.attrs.id }}-summernote').summernote({
+                 fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Helvetica', 'Impact', 'Tahoma',
+                     'Times New Roman', 'Verdana', 'Heebo', 'Assistant', 'Rubik', 'DanaYad', 'Dragon', 'Abraham',
+                     'Amatica', 'Ellinia', 'PtilNarrow', 'PtilWide', 'ComixNo2', 'Roboto'],
+                 fontNamesIgnoreCheck: ['Heebo', 'Assistant', 'Rubik', 'DanaYad', 'Dragon', 'Abraham', 'Amatica',
+                                        'Ellinia', 'PtilNarrow', 'PtilWide', 'ComixNo2', 'Roboto'],
+                 tabsize: 2,
+                 height: 150,
+             });
+        $('#{{ widget.attrs.id }}-summernote').summernote("code", `{{ widget.value|safe }}`);
+    });
+</script>

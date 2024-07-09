@@ -6,6 +6,7 @@ from builtins import object
 from django import forms
 from django.conf import settings
 from django.contrib.admin.sites import site
+from django.forms import Textarea
 from django.urls import reverse
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
@@ -132,3 +133,11 @@ class SMSContentWidget(forms.Widget):
             'js/expression.js',
             'js/content.js',
         )
+
+
+class EmailDataContentWidget(Textarea):
+    template_name = "admin/email_content_widget.html"
+
+    def render(self, name, value, attrs=None, renderer=None):
+        value = value[0].get("content")
+        return super().render(name, value, attrs, renderer)

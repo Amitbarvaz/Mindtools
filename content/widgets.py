@@ -139,5 +139,6 @@ class EmailDataContentWidget(Textarea):
     template_name = "admin/email_content_widget.html"
 
     def render(self, name, value, attrs=None, renderer=None):
-        value = value[0].get("content")
+        if value and isinstance(value, list):
+            value = value[0].get("content")
         return super().render(name, value, attrs, renderer)

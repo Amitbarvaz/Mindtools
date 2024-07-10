@@ -1,4 +1,5 @@
-from django.forms import fields, ModelForm
+from django.forms import ModelForm, fields
+from django.utils.translation import gettext_lazy as _
 from suit.widgets import AutosizedTextarea
 
 from content.widgets import EmailDataContentWidget

@@ -141,7 +141,6 @@ class EmailDataContentWidget(Textarea):
     def render(self, name, value, attrs=None, renderer=None):
         if value is None:
             value = ""
-        elif isinstance(value, list) and len(list) > 0:
+        elif isinstance(value, list) and len(value) > 0:
             value = value[0].get("content")
         return super().render(name, value, attrs, renderer)
-l

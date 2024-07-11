@@ -2,35 +2,39 @@
 
 from __future__ import absolute_import, unicode_literals
 
-import logging
-from builtins import object
 import datetime
-import mistune
+import logging
 import random
+from builtins import object
+from collections import OrderedDict
 
-from django.core.validators import RegexValidator
-from django.db import models
-from django.conf import settings
-from django.contrib.sites.models import Site
-from django.urls import reverse
-from django.core.exceptions import ValidationError
-from django.template.loader import render_to_string
-from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+import mistune
 from adminsortable.fields import SortableForeignKey
 from adminsortable.models import SortableMixin
+from django.conf import settings
+from django.contrib.sites.models import Site
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
+from django.db import models
+from django.template.loader import render_to_string
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from filer.fields.image import FilerImageField
-
 from jsonfield import JSONField
-from collections import OrderedDict
+from weasyprint import HTML
 
 from system.constants import INTERVAL_PROTECTION_TIMEDELTA_UNIT_NAME_MAPPING, \
     INTERVAL_PROTECTION_TIMEDELTA_UNIT_VALUE
-from system.utils import *
 from system.expressions import Parser
-from weasyprint import HTML
+from system.utils import *
 
 logger = logging.getLogger(__name__)
+
+
+class VariableManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
 
 
 class Variable(models.Model):
@@ -56,6 +60,8 @@ class Variable(models.Model):
     is_array = models.BooleanField(_('is array'), default=False)
     optional_values = models.CharField(_('optional values'), max_length=512, null=True, blank=True)
     max_entries = models.IntegerField(_('array max entries'), null=True, blank=True)
+
+    objects = VariableManager()
 
     class Meta(object):
         verbose_name = _('variable')
@@ -118,6 +124,14 @@ class Variable(models.Model):
     def clean(self):
         Program.clean_is_lock(self.program)
 
+    def natural_key(self):
+        return (self.name,)
+
+
+class ProgramManager(models.Manager):
+    def get_by_natural_key(self, title):
+        return self.get(title=title)
+
 
 class Program(models.Model):
     '''A top level model for a separate Program, having one or more sessions'''
@@ -139,6 +153,8 @@ class Program(models.Model):
 
     is_lock = models.BooleanField(_('is program lock'), default=False)
     default_program_start_time = models.TimeField(_('default program start time'), null=True, blank=True)
+
+    objects = ProgramManager()
 
     def __str__(self):
         return self.title
@@ -184,6 +200,11 @@ class Program(models.Model):
         if program is not None and program.is_lock:
             raise ValidationError(_('Program is locked. Could not save.'))
 
+    def natural_key(self):
+        return (self.title,)
+
+    natural_key.dependencies = ['filer.Image', 'filer.File', 'filer.Folder']
+
 
 class ProgramUserAccess(models.Model):
     '''
@@ -208,6 +229,13 @@ class ProgramUserAccess(models.Model):
         return '%s: %s' % (self.program, self.user.__str__())
 
 
+class ProgramGoldVariableManager(models.Manager):
+    def get_by_natural_key(self, program_natural_key, variable_natural_key):
+        program = Program.objects.get_by_natural_key(program_natural_key)
+        variable = Variable.objects.get_by_natural_key(variable_natural_key)
+        return self.get(program=program, variable=variable)
+
+
 class ProgramGoldVariable(models.Model):
     """
     A relation model that define 'Gold' Variable to a Program
@@ -225,12 +253,27 @@ class ProgramGoldVariable(models.Model):
     golden_type = models.CharField('Golden type', max_length=10, choices=GOLDEN_TYPES)
     therapist_can_edit = models.BooleanField('Therapist can edit', default=False)
 
+    objects = ProgramGoldVariableManager()
+
     class Meta(object):
         verbose_name = _('gold variable')
         verbose_name_plural = _('gold variables')
+        constraints = [
+            models.UniqueConstraint(fields=['program', 'variable'], name='unique_gold_variable_to_program_connection'),
+        ]
 
     def __str__(self):
         return '%s: %s' % (self.program, self.variable)
+
+    def natural_key(self):
+        return self.program.natural_key(), self.variable.natural_key()
+
+    natural_key.dependencies = ["system.Program", "system.Variable"]
+
+
+class SessionManager(models.Manager):
+    def get_by_natural_key(self, title):
+        return self.get(title=title)
 
 
 class Session(models.Model):
@@ -258,6 +301,8 @@ class Session(models.Model):
     trigger_login = models.BooleanField(_('trigger login'), default=True)
 
     data = JSONField(load_kwargs={'object_pairs_hook': OrderedDict}, default={"nodes": [], "edges": []})
+
+    objects = SessionManager()
 
     class Meta(object):
         verbose_name = _('session')
@@ -321,11 +366,21 @@ class Session(models.Model):
             raise ValidationError({'interval': ValidationError(
                 _('Interval must be greater than zero for reschedule session'))})
 
+    def natural_key(self):
+        return (self.title,)
+
+
+class ModuleManager(models.Manager):
+    def get_by_natural_key(self, title):
+        return self.get(title=title)
+
 
 class Module(models.Model):
     title = models.CharField('title', max_length=64, unique=True)
     display_title = models.CharField('display title', max_length=64)
     program = models.ForeignKey(Program, verbose_name='program', on_delete=models.CASCADE)
+
+    objects = ModuleManager()
 
     class Meta:
         verbose_name = 'module'
@@ -336,6 +391,14 @@ class Module(models.Model):
 
     def clean(self):
         Program.clean_is_lock(self.program)
+
+    def natural_key(self):
+        return (self.title,)
+
+
+class ChapterManager(models.Manager):
+    def get_by_natural_key(self, title):
+        return self.get(title=title)
 
 
 class Chapter(SortableMixin):
@@ -349,6 +412,8 @@ class Chapter(SortableMixin):
                                 on_delete=models.SET_NULL)
     chapter_order = models.PositiveIntegerField(default=0, editable=False)
 
+    objects = ChapterManager()
+
     class Meta:
         verbose_name = 'chapter'
         verbose_name_plural = 'chapters'
@@ -359,6 +424,14 @@ class Chapter(SortableMixin):
 
     def clean(self):
         Program.clean_is_lock(self.program)
+
+    def natural_key(self):
+        return (self.title,)
+
+
+class ContentManager(models.Manager):
+    def get_by_natural_key(self, title):
+        return self.get(title=title)
 
 
 class Content(models.Model):
@@ -374,6 +447,8 @@ class Content(models.Model):
 
     data = JSONField(load_kwargs={'object_pairs_hook': OrderedDict}, default=[])
     chapter = models.ForeignKey(Chapter, verbose_name='chapter', blank=True, null=True, on_delete=models.SET_NULL)
+
+    objects = ContentManager()
 
     class Meta(object):
         verbose_name = _('content')
@@ -393,6 +468,9 @@ class Content(models.Model):
 
     def clean(self):
         Program.clean_is_lock(self.program)
+
+    def natural_key(self):
+        return (self.title,)
 
 
 class PageManager(models.Manager):

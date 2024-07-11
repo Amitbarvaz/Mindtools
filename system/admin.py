@@ -11,7 +11,8 @@ from django.db import IntegrityError, models
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.translation import gettext_lazy as _
-from import_export.admin import ExportMixin
+from import_export.admin import ExportActionMixin
+from import_export.formats.base_formats import JSON
 from jsonfield import JSONField
 from reversion.admin import VersionAdmin
 from suit.widgets import AutosizedTextarea
@@ -20,8 +21,9 @@ from content.widgets import ContentWidget, SMSContentWidget
 from plumbing.widgets import PlumbingWidget
 from system.application_services import ProgramImportExportService
 from system.expressions import Parser
-from system.forms import EmailForm
+from system.forms import EmailForm, ProgramExportForm
 from system.models import Chapter, Content, Email, Module, Page, Program, SMS, Session, Variable
+from system.resources import ProgramExportResource
 
 
 class VariableForm(forms.ModelForm):
@@ -162,7 +164,7 @@ class ProgramGoldVariableInline(admin.TabularInline):
 
 
 @admin.register(Program)
-class ProgramAdmin(ExportMixin, VersionAdmin):
+class ProgramAdmin(ExportActionMixin, VersionAdmin):
     list_display = ['title', 'display_title', 'note_excerpt']
     search_fields = ['title', 'display_title', 'admin_note']
     actions = ['copy', 'export_text', 'import_text', 'set_program']
@@ -175,6 +177,16 @@ class ProgramAdmin(ExportMixin, VersionAdmin):
             'widget': AutosizedTextarea(attrs={'rows': 3, 'class': 'input-xlarge'})
         },
     }
+    export_form_class = ProgramExportForm
+    resource_classes = [ProgramExportResource]
+
+    class Media:
+        css = {
+            'all': ('admin/css/program.css',)
+        }
+
+    def get_export_formats(self):
+        return [JSON]
 
     def note_excerpt(self, obj):
         return obj.admin_note[:100] + '...'

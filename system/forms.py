@@ -1,5 +1,6 @@
 from django.forms import ModelForm, fields
 from django.utils.translation import gettext_lazy as _
+from import_export.forms import ExportForm
 from suit.widgets import AutosizedTextarea
 
 from content.widgets import EmailDataContentWidget
@@ -33,3 +34,7 @@ class EmailForm(ModelForm):
         widgets = {
             "admin_note": AutosizedTextarea(attrs={'rows': 3, 'class': 'input-xlarge'}),
         }
+
+
+class ProgramExportForm(ExportForm):
+    pass

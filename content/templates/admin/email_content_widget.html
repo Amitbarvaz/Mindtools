@@ -10,6 +10,8 @@
                  tabsize: 2,
                  height: 150,
              });
+        {% if widget.value %}
         $('#{{ widget.attrs.id }}-summernote').summernote("code", `{{ widget.value|safe }}`);
+        {% endif %}
     });
 </script>

@@ -1,6 +1,6 @@
 from django.forms import ModelForm, fields
 from django.utils.translation import gettext_lazy as _
-from import_export.forms import ExportForm
+from import_export.forms import ExportForm, ImportForm
 from suit.widgets import AutosizedTextarea
 
 from content.widgets import EmailDataContentWidget
@@ -37,4 +37,8 @@ class EmailForm(ModelForm):
 
 
 class ProgramExportForm(ExportForm):
+    pass
+
+
+class ProgramImportForm(ImportForm):
     pass

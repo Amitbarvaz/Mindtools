@@ -1,3 +1,3 @@
-from system.application_services.program_import_export import ProgramImportExportService
+from system.application_services.program_import_export import ProgramExportService
 
-__all__ = ["ProgramImportExportService"]
+__all__ = ["ProgramExportService"]

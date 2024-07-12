@@ -9,9 +9,9 @@ from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError, models
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.utils.translation import gettext_lazy as _
-from import_export.admin import ExportActionMixin
+from import_export.admin import ExportActionMixin, ImportMixin
 from import_export.formats.base_formats import JSON
 from jsonfield import JSONField
 from reversion.admin import VersionAdmin
@@ -19,11 +19,10 @@ from suit.widgets import AutosizedTextarea
 
 from content.widgets import ContentWidget, SMSContentWidget
 from plumbing.widgets import PlumbingWidget
-from system.application_services import ProgramImportExportService
 from system.expressions import Parser
-from system.forms import EmailForm, ProgramExportForm
+from system.forms import EmailForm, ProgramExportForm, ProgramImportForm
 from system.models import Chapter, Content, Email, Module, Page, Program, SMS, Session, Variable
-from system.resources import ProgramExportResource
+from system.resources import ProgramExportResource, ProgramImportResource
 
 
 class VariableForm(forms.ModelForm):
@@ -164,7 +163,7 @@ class ProgramGoldVariableInline(admin.TabularInline):
 
 
 @admin.register(Program)
-class ProgramAdmin(ExportActionMixin, VersionAdmin):
+class ProgramAdmin(ImportMixin, ExportActionMixin, VersionAdmin):
     list_display = ['title', 'display_title', 'note_excerpt']
     search_fields = ['title', 'display_title', 'admin_note']
     actions = ['copy', 'export_text', 'import_text', 'set_program']
@@ -177,6 +176,7 @@ class ProgramAdmin(ExportActionMixin, VersionAdmin):
             'widget': AutosizedTextarea(attrs={'rows': 3, 'class': 'input-xlarge'})
         },
     }
+    import_form_class = ProgramImportForm
     export_form_class = ProgramExportForm
     resource_classes = [ProgramExportResource]
 
@@ -184,6 +184,12 @@ class ProgramAdmin(ExportActionMixin, VersionAdmin):
         css = {
             'all': ('admin/css/program.css',)
         }
+
+    def get_import_formats(self):
+        return [JSON]
+
+    def get_import_resource_classes(self, request):
+        return [ProgramImportResource]
 
     def get_export_formats(self):
         return [JSON]
@@ -282,27 +288,6 @@ class ProgramAdmin(ExportActionMixin, VersionAdmin):
         return HttpResponseRedirect('/admin/import_text/?next=%s' % request.path)
 
     import_text.short_description = _('Import program text')
-
-    def export_program(modeladmin, request, queryset):
-        # TODO: the tricky part here is that a session has nodes and inside the JSONField data there are IDS
-        #  So - we need to know how to export this correctly (cuz email can have program>>null)
-        export_files = []
-        for program in queryset:
-            export_file = ProgramImportExportService.export_program(program)
-            export_files.append(export_file)
-        # this should probably be a different response
-        return HttpResponse(export_files)
-
-    export_program.short_description = _('Export program and dependencies')
-
-    def import_program(modeladmin, request, queryset):
-        # TODO: the tricky part here is that a session has nodes and inside the JSONField data there are IDS
-        #  So - we need to know how to import this correctly (cuz if the id was "1", now it will be changed and the whole session needs to be updated)
-        selected = request.POST.getlist(admin.helpers.ACTION_CHECKBOX_NAME)
-        ct = ContentType.objects.get_for_model(queryset.model)
-        return HttpResponseRedirect('/admin/import_text/?ct=%s&ids=%s' % (ct.pk, ','.join(selected)))
-
-    import_program.short_description = _('Import program and dependencies')
 
     def changelist_view(self, request, extra_context=None):
         if 'action' in request.POST and request.POST['action'] == 'set_program':

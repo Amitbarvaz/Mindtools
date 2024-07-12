@@ -266,7 +266,7 @@ class ProgramGoldVariable(models.Model):
         return '%s: %s' % (self.program, self.variable)
 
     def natural_key(self):
-        return self.program.natural_key(), self.variable.natural_key()
+        return self.program.natural_key() + self.variable.natural_key()
 
     natural_key.dependencies = ["system.Program", "system.Variable"]
 

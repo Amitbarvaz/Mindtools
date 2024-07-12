@@ -13,7 +13,10 @@ from django.utils import timezone
 
 from easy_thumbnails.files import get_thumbnailer
 from easy_thumbnails.alias import aliases
-from .models import Variable, ProgramUserAccess, Session, Content, Page
+from import_export.signals import post_import
+
+from .application_services.program_import_export import ProgramImportService
+from .models import Program, Variable, ProgramUserAccess, Session, Content, Page
 from tasker.models import Task
 from system.tasks import init_session
 
@@ -357,3 +360,9 @@ def content_post_save(sender, **kwargs):
                     if thumbnail:
                         pagelet['img_content']['thumbnail'] = thumbnail
                         Content.objects.filter(id=content.id).update(data=data)
+
+
+@receiver(post_import, dispatch_uid="move_autoincrement_pointers_after_program_import")
+def move_autoincrement_pointers_after_program_import(model, **kwargs):
+    if model is Program:
+        ProgramImportService.move_auto_increment_pointers()

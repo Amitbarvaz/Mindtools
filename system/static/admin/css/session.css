@@ -1,0 +1,7 @@
+#changelist-filter {
+    display: block;
+}
+
+#changelist.filtered {
+    flex-wrap: nowrap;
+}

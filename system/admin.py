@@ -449,6 +449,11 @@ class SessionAdmin(VersionAdmin):
         }),
     ]
 
+        class Media:
+        css = {
+            'all': ('admin/css/session.css',)
+        }
+
     def note_excerpt(self, obj):
         return obj.admin_note[:100] + '...'
 

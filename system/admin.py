@@ -449,7 +449,7 @@ class SessionAdmin(VersionAdmin):
         }),
     ]
 
-        class Media:
+    class Media:
         css = {
             'all': ('admin/css/session.css',)
         }

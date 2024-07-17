@@ -1,3 +1,4 @@
-#content-main > .object-tools > li > a.export_link, #toolbar > .object-tools > li > a.addlink, select[name="action"] option[value="export_admin_action"] {
+#content-main > .object-tools > li > a.export_link, #toolbar > .object-tools > li > a.addlink, select[name="action"] option[value="export_admin_action"],
+select[name="action"] option[value="delete_selected"]{
     display: none !important;
 }

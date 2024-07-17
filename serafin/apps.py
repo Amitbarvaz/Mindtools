@@ -55,6 +55,7 @@ class SuitConfig(DjangoSuitConfig):
             ChildItem(model='request.request')
         ]),
         ParentItem('Media', 'filer', icon='icon-picture'),
+        ParentItem('Import - Export', 'import_export_huey'),
         ParentItem('Settings', 'sites', icon='icon-cog', children=[
             ChildItem(model='site'),
             ChildItem(model='sitetree.tree'),

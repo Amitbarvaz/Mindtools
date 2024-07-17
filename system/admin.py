@@ -10,19 +10,21 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError, models
 from django.db.models import Q
 from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from import_export.admin import ExportActionMixin, ImportMixin
-from import_export.formats.base_formats import JSON
 from jsonfield import JSONField
 from reversion.admin import VersionAdmin
 from suit.widgets import AutosizedTextarea
 
 from content.widgets import ContentWidget, SMSContentWidget
+from import_export_huey.admin_actions import create_export_job_action
+from import_export_huey.models import ImportJob
 from plumbing.widgets import PlumbingWidget
 from system.expressions import Parser
-from system.forms import EmailForm, ProgramExportForm, ProgramImportForm
+from system.forms import EmailForm
 from system.models import Chapter, Content, Email, Module, Page, Program, SMS, Session, Variable
-from system.resources import ProgramExportResource, ProgramImportResource
 
 
 class VariableForm(forms.ModelForm):
@@ -166,7 +168,7 @@ class ProgramGoldVariableInline(admin.TabularInline):
 class ProgramAdmin(ImportMixin, ExportActionMixin, VersionAdmin):
     list_display = ['title', 'display_title', 'note_excerpt']
     search_fields = ['title', 'display_title', 'admin_note']
-    actions = ['copy', 'export_text', 'import_text', 'set_program']
+    actions = ['copy', 'export_text', 'import_text', 'set_program', create_export_job_action]
     save_as = True
     delete_confirmation_template = 'admin/delete_confirmation.html'
 
@@ -176,23 +178,11 @@ class ProgramAdmin(ImportMixin, ExportActionMixin, VersionAdmin):
             'widget': AutosizedTextarea(attrs={'rows': 3, 'class': 'input-xlarge'})
         },
     }
-    import_form_class = ProgramImportForm
-    export_form_class = ProgramExportForm
-    resource_classes = [ProgramExportResource]
 
     class Media:
         css = {
             'all': ('admin/css/program.css',)
         }
-
-    def get_import_formats(self):
-        return [JSON]
-
-    def get_import_resource_classes(self, request):
-        return [ProgramImportResource]
-
-    def get_export_formats(self):
-        return [JSON]
 
     def note_excerpt(self, obj):
         return obj.admin_note[:100] + '...'
@@ -321,6 +311,19 @@ class ProgramAdmin(ImportMixin, ExportActionMixin, VersionAdmin):
 
     def has_view_permission(self, request, obj=None):
         return request.user.has_perm('system.view_program', obj)
+
+    def export_admin_action(self, request, queryset):
+        return create_export_job_action(self, request, queryset)
+
+    def import_action(self, request, **kwargs):
+        rurl = reverse(
+            "admin:%s_%s_add"
+            % (
+                ImportJob._meta.app_label,
+                ImportJob._meta.model_name,
+            )
+        )
+        return redirect(rurl)
 
 
 class SessionForm(forms.ModelForm):

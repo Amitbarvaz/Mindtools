@@ -81,6 +81,7 @@ class Base(Configuration):
         'raven.contrib.django.raven_compat',
         'serafin.apps.SerafinReConfig',
         'defender',
+        'import_export_huey'
     )
 
     MIDDLEWARE = (
@@ -98,6 +99,7 @@ class Base(Configuration):
         'defender.middleware.FailedLoginMiddleware',
         'events.middleware.EventTrackingMiddleware',
         'request.middleware.RequestMiddleware',
+        'author.middlewares.AuthorDefaultBackendMiddleware',
         'users.middleware.ForceChangePasswordMiddleware',
         'serafin.middleware.AdminIPRestrictorMiddleware'
     )
@@ -604,6 +606,21 @@ class Base(Configuration):
     SENTRY_DSN = values.Value('')
     FRONTEND_SENTRY_DSN = values.Value('')
     SITE_ENVIRONMENT = "Development"
+
+    @staticmethod
+    def resource():
+        from system.resources import ProgramImportResource
+        return ProgramImportResource
+
+    IMPORT_EXPORT_HUEY_MODELS = {
+        "Program": {
+            'app_label': 'system',
+            'model_name': 'Program',
+            'resource': resource,
+        }
+    }
+
+    IMPORT_EXPORT_HUEY_EXCLUDED_FORMATS = ["csv", "xls", "xlsx", "tsv", "yaml", "ods"]
 
 
 class Development(Base):

@@ -205,6 +205,13 @@ class Program(models.Model):
 
     natural_key.dependencies = ['filer.Image', 'filer.File', 'filer.Folder']
 
+    @classmethod
+    def export_resource_classes(cls):
+        from system.resources import ProgramExportResource
+        return {
+            'program': (_('Program Resource'), ProgramExportResource),
+        }
+
 
 class ProgramUserAccess(models.Model):
     '''

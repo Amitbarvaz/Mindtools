@@ -1,0 +1,150 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Omer <ombental@gmail.com>, 2024.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-05-17 20:55+0000\n"
+"PO-Revision-Date: 2023-05-17 21:56+0100\n"
+"Last-Translator: Omer Bental <ombental@gmail.com>\n"
+"Language-Team: \n"
+"Language: he_IL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.3.1\n"
+
+#: import_export_huey/admin.py:12
+msgid "Job status info"
+msgstr "מידע על סטטוס המשימה"
+
+#: import_export_huey/admin.py:22 import_export_huey/models/importjob.py:62
+msgid "Name of model to import to"
+msgstr "שם המודל לייבא אליו"
+
+#: import_export_huey/admin_actions.py:20
+msgid "Perform import"
+msgstr "בצע ייבוא"
+
+#: import_export_huey/admin_actions.py:29
+msgid "Perform dry import"
+msgstr "בצע ייבוא יבש(ללא שמירת הנתונים באמת)"
+
+#: import_export_huey/admin_actions.py:39
+msgid "Run export job"
+msgstr "בצע משימת ייצוא"
+
+#: import_export_huey/admin_actions.py:67
+msgid "Export with huey"
+msgstr "ייצא עם HUEY"
+
+#: import_export_huey/apps.py:7
+msgid "Import Export huey"
+msgstr "ייבוא וייצוא עם HUEY"
+
+#: import_export_huey/models/exportjob.py:27
+msgid "exported file"
+msgstr "קובץ מיוצא"
+
+#: import_export_huey/models/exportjob.py:35
+#: import_export_huey/models/importjob.py:30
+msgid "Have we started processing the file? If so when?"
+msgstr "התחלנו לעבד את הקובץ? אם כן, מתי?"
+
+#: import_export_huey/models/exportjob.py:42
+#: import_export_huey/models/importjob.py:67
+msgid "Status of the job"
+msgstr "סטטוס המשימה"
+
+#: import_export_huey/models/exportjob.py:48
+msgid "Format of file to be exported"
+msgstr "פורמט הקובץ לייצוא"
+
+#: import_export_huey/models/exportjob.py:55
+msgid "App label of model to export from"
+msgstr "שם האפליקציה של המודל לייצוא"
+
+#: import_export_huey/models/exportjob.py:60
+msgid "Name of model to export from"
+msgstr "שם המודל לייצוא"
+
+#: import_export_huey/models/exportjob.py:65
+msgid "Resource to use when exporting"
+msgstr "משאב להשתמש בו בזמן הייצוא"
+
+#: import_export_huey/models/exportjob.py:71
+msgid "JSON list of pks to export"
+msgstr "רשימת המזהים הייחודים לייצוא"
+
+#: import_export_huey/models/exportjob.py:76
+msgid "Send me an email when this export job is complete"
+msgstr "שלחו לי מייל כשמשימת הייצוא הושלמה"
+
+#: import_export_huey/models/exportjob.py:81
+msgid "Site of origin"
+msgstr "אתר מקור"
+
+#: import_export_huey/models/exportjob.py:87
+msgid "Export job"
+msgstr "משימת ייצוא"
+
+#: import_export_huey/models/exportjob.py:88
+msgid "Export jobs"
+msgstr "משימות ייצוא"
+
+#: import_export_huey/models/importjob.py:22
+msgid "File to be imported"
+msgstr "קובץ לייבוא"
+
+#: import_export_huey/models/importjob.py:37
+msgid "Has the import been completed? If so when?"
+msgstr "האם הייבוא הושלם? אם כן, מתי?"
+
+#: import_export_huey/models/importjob.py:44
+msgid "Format of file to be imported"
+msgstr "פורמט הקובץ לייבוא"
+
+#: import_export_huey/models/importjob.py:49
+msgid "Summary of changes made by this import"
+msgstr "סיכום השינויים שנערכו בזמן הייבוא"
+
+#: import_export_huey/models/importjob.py:56
+msgid "Errors"
+msgstr "שגיאות"
+
+#: import_export_huey/models/importjob.py:73
+msgid "Import job"
+msgstr "משימת ייבוא"
+
+#: import_export_huey/models/importjob.py:74
+msgid "Import jobs"
+msgstr "משימות ייבוא"
+
+#: import_export_huey/tasks.py:61
+#, python-format
+msgid "Imported file has a wrong encoding: %s"
+msgstr "לקובץ המיובא יש שגיאת קידוד: %s"
+
+#: import_export_huey/tasks.py:68
+#, python-format
+msgid "Error reading file: %s"
+msgstr "שגיאה בקריאת הקובץ: %s"
+
+#: import_export_huey/tasks.py:101
+#, python-format
+msgid ""
+"Line: %s - %s\n"
+"\t%s\n"
+"%s"
+msgstr ""
+"שורה: %s - %s\n"
+"\t%s\n"
+"%s"
+
+#: import_export_huey/tasks.py:190
+#, python-format
+msgid "Import error %s"
+msgstr "שגיאת ייבוא %s"

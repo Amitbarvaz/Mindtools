@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django.core import serializers
 from django.db.models import Q, QuerySet
@@ -6,9 +7,11 @@ from filer.models import File, Folder, Image
 from import_export.fields import Field
 from import_export.resources import ModelResource
 
-from system.application_services import ProgramExportService
-from system.application_services.program_import_export import ProgramImportService
+from system.application_services import ProgramAfterImportRowHandler, ProgramBeforeImportRowHandler, \
+    ProgramExportHandler
 from system.models import Chapter, Content, Program, ProgramGoldVariable, Variable
+
+logger = logging.getLogger("debug")
 
 
 class ProgramExportResource(ModelResource):
@@ -20,7 +23,8 @@ class ProgramExportResource(ModelResource):
 
     # NOT SURE THIS IS THREAD SAFE... MAYBE WILL NEED TO REVERT TO ANNOTATION...
     def export_resource(self, instance, fields=None):
-        instance = ProgramExportService(instance).annotate_program_instance_for_export()
+        logger.debug("Starting export, annotating program instance")
+        instance = ProgramExportHandler(instance).annotate_program_instance_for_export()
         export_fields = self._get_enabled_export_fields(fields)
         return [self.export_field(field, instance) for field in export_fields]
 
@@ -106,9 +110,15 @@ class ProgramImportResource(ModelResource):
                   'admin_note', 'is_lock']
         import_id_fields = ['title']
 
+    def import_row(self, row, instance_loader, **kwargs):
+        logger.debug(f"Starting import, row data\n{row}")
+        edited_row = ProgramBeforeImportRowHandler(row).run()
+        return super().import_row(edited_row, instance_loader, **kwargs)
+
     def after_import_row(self, row, row_result, **kwargs):
         program = row_result.instance if row_result.instance else row_result.original
         if program is None:
             program = Program.objects.get(id=row_result.object_id)
-        ProgramImportService(program, row).import_program_data()
+        logger.debug(f"Handling program after import")
+        ProgramAfterImportRowHandler(program, row).import_program_data()
         return super().after_import_row(row, row_result, **kwargs)

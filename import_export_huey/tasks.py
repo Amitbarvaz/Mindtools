@@ -10,6 +10,7 @@ from django.core.cache import cache
 
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
+from import_export.signals import post_import
 
 from . import models
 from .model_config import ModelConfig
@@ -183,6 +184,8 @@ def _run_import_job(import_job, dry_run=True):
         import_job.imported = timezone.now()
     change_job_status(import_job, "import", "5/5 Import job finished", dry_run)
     import_job.save()
+    if not dry_run:
+        post_import.send(sender=None, model=resource._meta.model)
 
 
 @task(

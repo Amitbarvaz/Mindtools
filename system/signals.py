@@ -1,26 +1,24 @@
 from __future__ import unicode_literals
-from django.utils.translation import gettext_lazy as _
 
+import logging
 import re
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.db.models import signals
 from django.dispatch import receiver
 from django.utils import timezone
-
-from easy_thumbnails.files import get_thumbnailer
+from django.utils.translation import gettext_lazy as _
 from easy_thumbnails.alias import aliases
+from easy_thumbnails.files import get_thumbnailer
+from filer.models import Folder, Image
 from import_export.signals import post_import
 
-from .application_services.program_import_export import ProgramImportService
-from .models import Program, Variable, ProgramUserAccess, Session, Content, Page
-from tasker.models import Task
 from system.tasks import init_session
-
-import logging
+from tasker.models import Task
+from .models import Content, Program, ProgramUserAccess, Session, Variable
 
 logger = logging.getLogger('debug')
 
@@ -80,7 +78,8 @@ def execute_schedule_sessions(sender, **kwargs):
             object_id=session.id,
             subject=useraccess.user
         )
-        logger.debug(f"{useraccess.user} {session.id} Delete Tasks {', '.join([' '.join((str(task), task.task_id)) for task in task_qs])}")
+        logger.debug(
+            f"{useraccess.user} {session.id} Delete Tasks {', '.join([' '.join((str(task), task.task_id)) for task in task_qs])}")
 
         task_qs.delete()
 
@@ -227,7 +226,8 @@ def reschedule_session(sender, **kwargs):
                 subject=useraccess.user,
                 time__gt=timezone.localtime(timezone.now())
             )
-            logger.debug(f"{useraccess.user} {session.id} Delete Tasks {', '.join([' '.join((str(task), task.task_id)) for task in task_qs])}")
+            logger.debug(
+                f"{useraccess.user} {session.id} Delete Tasks {', '.join([' '.join((str(task), task.task_id)) for task in task_qs])}")
             task_qs.delete()
 
             if not useraccess.user.is_active:
@@ -239,7 +239,8 @@ def reschedule_session(sender, **kwargs):
             )
             if session.scheduled:
                 if start_time > timezone.localtime(timezone.now()):
-                    logger.debug(f"{useraccess.user.id} {session}Create Task - Init Session, start_time > timezone.now . {start_time} > {timezone.localtime(timezone.now())}")
+                    logger.debug(
+                        f"{useraccess.user.id} {session}Create Task - Init Session, start_time > timezone.now . {start_time} > {timezone.localtime(timezone.now())}")
                     Task.objects.create_task(
                         sender=session,
                         domain='init',
@@ -252,7 +253,8 @@ def reschedule_session(sender, **kwargs):
                 elif session.get_end_time(useraccess.start_time, useraccess.time_factor) > \
                         session.get_next_time(useraccess.start_time, useraccess.time_factor):
                     next_time = session.get_next_time(useraccess.start_time, useraccess.time_factor)
-                    logger.debug(f"{useraccess.user.id} {session}Create Task - Init Session Recurrent, end_time > next_time. {session.get_end_time(useraccess.start_time, useraccess.time_factor)} > {next_time}")
+                    logger.debug(
+                        f"{useraccess.user.id} {session}Create Task - Init Session Recurrent, end_time > next_time. {session.get_end_time(useraccess.start_time, useraccess.time_factor)} > {next_time}")
                     Task.objects.create_task(
                         sender=session,
                         domain='init',
@@ -291,7 +293,8 @@ def revoke_tasks(sender, **kwargs):
             object_id=session.id,
             subject=useraccess.user
         )
-        logger.debug(f"{useraccess.user} {session.id} Delete Tasks {', '.join([' '.join((str(task), task.task_id)) for task in task_qs])}")
+        logger.debug(
+            f"{useraccess.user} {session.id} Delete Tasks {', '.join([' '.join((str(task), task.task_id)) for task in task_qs])}")
         task_qs.delete()
 
 
@@ -342,7 +345,7 @@ def content_post_save(sender, **kwargs):
                         Content.objects.filter(id=content.id).update(data=data)
 
             if pagelet.get('content_type') == 'toggle':
-                if not 'img_content' in pagelet:
+                if 'img_content' not in pagelet:
                     pagelet['img_content'] = {
                         'url': ''
                     }
@@ -364,5 +367,36 @@ def content_post_save(sender, **kwargs):
 
 @receiver(post_import, dispatch_uid="move_autoincrement_pointers_after_program_import")
 def move_autoincrement_pointers_after_program_import(model, **kwargs):
+    """
+    Because we are manually playing with the pks in the images and folders we need to force update
+    their autoincrement counters
+    """
     if model is Program:
-        ProgramImportService.move_auto_increment_pointers()
+        while True:
+            try:
+                folder = Folder.objects.create(name="test")
+            except IntegrityError:
+                continue
+            else:
+                folder.delete()
+                break
+
+        while True:
+            try:
+                image = Image.objects.create()
+            except IntegrityError:
+                continue
+            else:
+                image.delete()
+                break
+
+
+# These aren't connected by default on purpose, they are used in program_import_export.py
+@disable_for_loaddata
+def decorated_content_post_save(sender, **kwargs):
+    content_post_save(sender, **kwargs)
+
+
+@disable_for_loaddata
+def decorated_add_content_relations(sender, **kwargs):
+    add_content_relations(sender, **kwargs)

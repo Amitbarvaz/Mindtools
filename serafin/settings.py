@@ -724,29 +724,6 @@ class Production(Base):
         'compressor.finders.CompressorFinder'
     )
 
-    FILER_STORAGES = {
-        'public': {
-            'main': {
-                'ENGINE': 'storages.backends.s3boto3.S3Boto3Storage',
-                'OPTIONS': {
-                    'location': 'media',
-                    'default_acl': 'public-read',
-                    'file_overwrite': False
-                },
-                'UPLOAD_TO': 'filer.utils.generate_filename.randomized',
-                'UPLOAD_TO_PREFIX': 'public',
-            },
-            'thumbnails': {
-                'ENGINE': 'storages.backends.s3boto3.S3Boto3Storage',
-                'OPTIONS': {
-                    'location': 'media',
-                    'default_acl': 'public-read',
-                    'file_overwrite': False
-                }
-            }
-        }
-    }
-
     @classmethod
     def post_setup(cls):
         """Sentry initialization"""

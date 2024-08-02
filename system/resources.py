@@ -27,3 +27,7 @@ class ProgramImportResource(ModelResource):
         logger.debug(f"Handling program after import")
         ProgramAfterImportRowHandler(program, row).import_program_data()
         return super().after_import_row(row, row_result, **kwargs)
+
+class ProgramExportResource(ModelResource):
+    class Meta:
+        model = Program

@@ -7,6 +7,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from . import admin_actions, models
+from .models import ExportJob
 
 
 class JobWithStatusMixin:
@@ -113,6 +114,8 @@ class ExportJobAdmin(JobWithStatusMixin, admin.ModelAdmin):
 
     actions = (admin_actions.run_export_job_action,)
 
+    # The if is a bit fragile...
     @admin.display(description=_("exported file"))
-    def file_download(self, obj):
-        return mark_safe(f'<a href="{obj.file.url}" download>{obj.file.url.split("/")[-1]}</a>') if obj.file else ""
+    def file_download(self, obj: ExportJob):
+        return mark_safe(f'<a href="{obj.file.url}" download>{obj.file.url.split("/")[-1]}</a>') \
+            if obj.file and "complete" in obj.job_status else ""

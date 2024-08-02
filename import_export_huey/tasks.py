@@ -1,25 +1,23 @@
 # Author: Timothy Hobbs <timothy <at> hobbs.cz>
-from django.utils import timezone
+import logging
 import os
 
-from huey.contrib.djhuey import task
-
 from django.conf import settings
-from django.core.files.base import ContentFile
 from django.core.cache import cache
-
+from django.core.files.base import ContentFile
+from django.utils import timezone
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
+from huey.contrib.djhuey import task
 from import_export.signals import post_import
 
+from system.application_services import ProgramExportHandler
+from system.models import Program
 from . import models
 from .model_config import ModelConfig
-from .utils import send_export_job_completion_mail, get_formats
+from .utils import get_formats, send_export_job_completion_mail
 
-import logging
-
-logger = logging.getLogger(__name__)
-
+logger = logging.getLogger("debug")
 
 importables = getattr(settings, "IMPORT_EXPORT_HUEY_MODELS", {})
 
@@ -55,7 +53,7 @@ def _run_import_job(import_job, dry_run=True):
         dataset = import_format.create_dataset(data)
     except UnicodeDecodeError as e:
         import_job.errors += (
-            _("Imported file has a wrong encoding: %s" % e) + "\n"
+                _("Imported file has a wrong encoding: %s" % e) + "\n"
         )
         change_job_status(
             import_job, "import", "Imported file has a wrong encoding", dry_run
@@ -120,21 +118,21 @@ def _run_import_job(import_job, dry_run=True):
         if not result.invalid_rows and not skip_diff:
             cols = lambda row: "</td><td>".join([field for field in row.diff])
             summary += (
-                "<tr><td>change_type</td><td>"
-                + "</td><td>".join(
-                    [f.column_name for f in resource.get_user_visible_fields()]
-                )
-                + "</td></tr>"
+                    "<tr><td>change_type</td><td>"
+                    + "</td><td>".join(
+                [f.column_name for f in resource.get_user_visible_fields()]
+            )
+                    + "</td></tr>"
             )
             summary += (
-                "<tr><td>"
-                + "</td></tr><tr><td>".join(
-                    [
-                        row.import_type + "</td><td>" + cols(row)
-                        for row in result.valid_rows()
-                    ]
-                )
-                + "</tr>"
+                    "<tr><td>"
+                    + "</td></tr><tr><td>".join(
+                [
+                    row.import_type + "</td><td>" + cols(row)
+                    for row in result.valid_rows()
+                ]
+            )
+                    + "</tr>"
             )
         else:
             cols = lambda row: "</td><td>".join(
@@ -152,26 +150,26 @@ def _run_import_job(import_job, dry_run=True):
                 ]
             )
             summary += (
-                "<tr><td>row</td>"
-                + "<td>errors</td><td>"
-                + "</td><td>".join(
-                    [f.column_name for f in resource.get_user_visible_fields()]
-                )
-                + "</td></tr>"
+                    "<tr><td>row</td>"
+                    + "<td>errors</td><td>"
+                    + "</td><td>".join(
+                [f.column_name for f in resource.get_user_visible_fields()]
+            )
+                    + "</td></tr>"
             )
             summary += (
-                "<tr><td>"
-                + "</td><td></td></tr><tr><td>".join(
-                    [
-                        str(row.number)
-                        + "</td><td>"
-                        + cols_error(row)
-                        + "</td><td>"
-                        + cols(row)
-                        for row in result.invalid_rows
-                    ]
-                )
-                + "</tr>"
+                    "<tr><td>"
+                    + "</td><td></td></tr><tr><td>".join(
+                [
+                    str(row.number)
+                    + "</td><td>"
+                    + cols_error(row)
+                    + "</td><td>"
+                    + cols(row)
+                    for row in result.invalid_rows
+                ]
+            )
+                    + "</tr>"
             )
         summary += "</table>"
         summary += "</body>"
@@ -211,39 +209,55 @@ def run_export_job(pk):
     export_job = models.ExportJob.objects.get(pk=pk)
     resource_class = export_job.get_resource_class()
     queryset = export_job.get_queryset()
-    qs_len = len(queryset)
+    # This part was added (handles only one program)
+    if queryset.model is Program:
+        program = queryset.first()
+        format = get_format(export_job)
+        change_job_status(export_job, "export", f"Starting Export for program {program.title}")
+        filename = "{app}-{model}-{program}-{date}.{extension}".format(
+            app=export_job.app_label,
+            model=export_job.model,
+            program=program.title,
+            date=str(timezone.now()),
+            extension=format.get_extension(),
+        )
+        export_job.file.save(filename, ContentFile(""))
+        ProgramExportHandler(program, export_job.file.path).export()
+        change_job_status(export_job, "export", f"Program {program.title} export complete")
+    else:
+        qs_len = len(queryset)
 
-    class Resource(resource_class):
-        def __init__(self, export_job, *args, **kwargs):
-            self.row_number = 1
-            self.export_job = export_job
-            super().__init__(*args, **kwargs)
+        class Resource(resource_class):
+            def __init__(self, export_job, *args, **kwargs):
+                self.row_number = 1
+                self.export_job = export_job
+                super().__init__(*args, **kwargs)
 
-        def export_resource(self, *args, **kwargs):
-            if self.row_number % 20 == 0 or self.row_number == 1:
-                change_job_status(
-                    export_job,
-                    "export",
-                    f"Exporting row {self.row_number}/{qs_len}",
-                )
-            self.row_number += 1
-            return super().export_resource(*args, **kwargs)
+            def export_resource(self, *args, **kwargs):
+                if self.row_number % 20 == 0 or self.row_number == 1:
+                    change_job_status(
+                        export_job,
+                        "export",
+                        f"Exporting row {self.row_number}/{qs_len}",
+                    )
+                self.row_number += 1
+                return super().export_resource(*args, **kwargs)
 
-    resource = Resource(export_job=export_job)
+        resource = Resource(export_job=export_job)
 
-    data = resource.export(queryset)
-    format = get_format(export_job)
-    serialized = format.export_data(data)
-    change_job_status(export_job, "export", "Export complete")
-    filename = "{app}-{model}-{date}.{extension}".format(
-        app=export_job.app_label,
-        model=export_job.model,
-        date=str(timezone.now()),
-        extension=format.get_extension(),
-    )
-    if not format.is_binary():
-        serialized = serialized.encode("utf8")
-    export_job.file.save(filename, ContentFile(serialized))
+        data = resource.export(queryset)
+        format = get_format(export_job)
+        serialized = format.export_data(data)
+        change_job_status(export_job, "export", "Export complete")
+        filename = "{app}-{model}-{date}.{extension}".format(
+            app=export_job.app_label,
+            model=export_job.model,
+            date=str(timezone.now()),
+            extension=format.get_extension(),
+        )
+        if not format.is_binary():
+            serialized = serialized.encode("utf8")
+        export_job.file.save(filename, ContentFile(serialized))
     if export_job.email_on_completion:
         send_export_job_completion_mail(export_job)
     return

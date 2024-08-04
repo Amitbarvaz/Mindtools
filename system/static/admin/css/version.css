@@ -1,0 +1,3 @@
+#toolbar > .object-tools > li > a.addlink{
+    display: none !important;
+}

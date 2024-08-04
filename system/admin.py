@@ -27,6 +27,15 @@ from system.forms import EmailForm
 from system.models import Chapter, Content, Email, Module, Page, Program, SMS, Session, Variable
 
 
+class CustomVersionAdmin(VersionAdmin):
+    change_list_template = 'admin/custom_version_admin_change_list.html'
+
+    class Media:
+        css = {
+            'all': ('admin/css/version.css',)
+        }
+
+
 class VariableForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(VariableForm, self).__init__(*args, **kwargs)
@@ -386,7 +395,7 @@ class SessionForm(forms.ModelForm):
 
 
 @admin.register(Session)
-class SessionAdmin(VersionAdmin):
+class SessionAdmin(CustomVersionAdmin):
     list_display = [
         'title',
         # 'display_title',
@@ -596,7 +605,7 @@ class ContentForm(forms.ModelForm):
 
 
 @admin.register(Content)
-class ContentAdmin(VersionAdmin):
+class ContentAdmin(CustomVersionAdmin):
     list_display = ['title', 'note_excerpt', 'page_excerpt']
     search_fields = ['title', 'admin_note', 'data']
     actions = ['copy']
@@ -729,7 +738,7 @@ class SMSAdmin(ContentAdmin):
 
 
 @admin.register(Chapter)
-class ChapterAdmin(VersionAdmin):
+class ChapterAdmin(CustomVersionAdmin):
     list_display = ['title', 'display_title', 'module', 'program']
     search_fields = ['title', 'display_title', 'module__title']
     raw_id_fields = ('module',)

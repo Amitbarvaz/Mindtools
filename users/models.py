@@ -234,23 +234,26 @@ class User(AbstractBaseUser, PermissionsMixin):
         else:
             logger.error(f'Could not delete message {message_id} after {current_retry} retries')
 
-    def send_email(self, subject=None, message=None, html_message=None, **kwargs):
+    def send_email(self, subject=None, message=None, html_message=None, direct_email=False, **kwargs):
         if subject and (message or html_message):
 
             pdfs = kwargs.get('pdfs', [])
-
-            user_program = self.get_first_program()
-            current_site = Site.objects.get_current()
-            if hasattr(current_site, 'program'):
-                print(current_site.program)
-                subject = '[%s] %s' % (current_site.program.display_title, subject)
-                from_email = current_site.program.from_email or settings.DEFAULT_FROM_EMAIL
-            elif user_program:
-                subject = '[%s] %s' % (user_program.display_title, subject)
-                from_email = user_program.from_email or settings.DEFAULT_FROM_EMAIL
-            else:
+            if direct_email:
                 subject = settings.EMAIL_SUBJECT_PREFIX + subject
                 from_email = settings.DEFAULT_FROM_EMAIL
+            else:
+                user_program = self.get_first_program()
+                current_site = Site.objects.get_current()
+                if hasattr(current_site, 'program'):
+                    print(current_site.program)
+                    subject = '[%s] %s' % (current_site.program.display_title, subject)
+                    from_email = current_site.program.from_email or settings.DEFAULT_FROM_EMAIL
+                elif user_program:
+                    subject = '[%s] %s' % (user_program.display_title, subject)
+                    from_email = user_program.from_email or settings.DEFAULT_FROM_EMAIL
+                else:
+                    subject = settings.EMAIL_SUBJECT_PREFIX + subject
+                    from_email = settings.DEFAULT_FROM_EMAIL
 
             email = EmailMultiAlternatives(
                 subject,

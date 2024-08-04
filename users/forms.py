@@ -1,22 +1,24 @@
 from __future__ import unicode_literals
 
-from defender import utils
-from django.contrib.auth.forms import SetPasswordForm
-from django.utils.translation import gettext_lazy as _
+import json
 
+from defender import utils
 from django import forms
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.forms import AdminAuthenticationForm
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.sites.models import Site
-from django.urls import reverse
-from django.template import Context
 from django.template.loader import get_template
+from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+from django.utils.translation import gettext_lazy as _
+from users.widgets import CharacterCountTextarea
 
+from content.widgets import EmailDataContentWidget
 from tokens.tokens import token_generator
-from django.contrib.auth import get_user_model
 
 
 class PasswordResetForm(forms.Form):
@@ -91,3 +93,44 @@ class AdminIDAuthenticationForm(AdminAuthenticationForm):
 
 
 admin.site.login_form = AdminIDAuthenticationForm
+
+
+class DirectEmailSendingForm(forms.Form):
+    email = forms.EmailField(label=_('Email'), max_length=254, disabled=True)
+    subject = forms.CharField(label=_('Subject'), max_length=254, min_length=2)
+    body = forms.CharField(label=_('Body'), widget=EmailDataContentWidget, min_length=2)
+
+    def __init__(self, user, *args, **kwargs):
+        self.base_fields['email'].initial = user.email
+        super(DirectEmailSendingForm, self).__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        User = get_user_model()
+        try:
+            user = User.objects.get(email__iexact=self.cleaned_data['email'])
+            return user.send_email(subject=self.cleaned_data.get("subject"), html_message=self.cleaned_data.get("body"))
+        except:
+            return False
+
+
+class DirectSmsSendingForm(forms.Form):
+    user_id = forms.IntegerField(label=_('User ID'), widget=forms.HiddenInput)
+    email = forms.EmailField(label=_('Email'), max_length=254, disabled=True)
+    phone = forms.CharField(label=_('Phone'), max_length=254, disabled=True)
+    body = forms.CharField(label=_('Body'), widget=CharacterCountTextarea)
+    is_whatsapp = forms.BooleanField(label=_('Is Whatsapp'), required=False)
+
+    def __init__(self, user, *args, **kwargs):
+        self.base_fields['user_id'].initial = user.id
+        self.base_fields['phone'].initial = user.phone or user.secondary_phone
+        self.base_fields['email'].initial = user.email
+        super(DirectSmsSendingForm, self).__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        User = get_user_model()
+        try:
+            user = User.objects.get(id=self.cleaned_data['user_id'])
+            return user.send_sms(message=self.cleaned_data.get("body"),
+                                 is_whatsapp=self.cleaned_data.get("is_whatsapp"))
+        except:
+            return False

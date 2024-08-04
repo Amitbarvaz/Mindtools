@@ -1,0 +1,16 @@
+{% load i18n %}
+<div id="{{ widget.attrs.id }}-counter">{% trans 'characters used' %}: <span id="{{ widget.attrs.id }}-count"></span></div>
+<textarea id="{{ widget.attrs.id }}" class="{{ widget.attrs.class }}" name="{{ widget.name }}"
+{% if widget.attrs %}{% for attr_name, attr_value in widget.attrs.items %} {{ attr_name }}="{{ attr_value }}"
+{% endfor %} {% endif %}>{{ value|safe }}</textarea>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(textarea => {
+            const counter = document.getElementById(`${textarea.id}-count`);
+            textarea.addEventListener('input', () => {
+                counter.textContent = textarea.value.length;
+            });
+        });
+    });
+</script>

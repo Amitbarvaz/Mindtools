@@ -1,29 +1,36 @@
 from __future__ import unicode_literals
 
+import json
 import uuid
-from builtins import str
-from builtins import object
-from django.utils.translation import gettext_lazy as _
+from builtins import object, str
 
+from constance import config
 from django import forms
 from django.conf import settings
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.contrib.admin.helpers import AdminForm
+from django.contrib.admin.options import IS_POPUP_VAR
 from django.contrib.auth.admin import UserAdmin
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
+from django.http import Http404, HttpResponseRedirect
 from django.template.loader import render_to_string
+from django.template.response import TemplateResponse
+from django.urls import path, reverse
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from import_export.admin import ImportExportModelAdmin
-from jsonfield import JSONField
-from constance import config
-from events.models import Event
-from system.models import Program, ProgramUserAccess
-from users.importexport import UserResource
-from users.models import User
-
+from django.utils.translation import gettext_lazy as _
 from filer.admin import FolderAdmin
 from filer.models import Folder
+from import_export.admin import ImportExportModelAdmin
+from jsonfield import JSONField
 
-import json
+from events.models import Event
+from system.models import Program, ProgramUserAccess
+from users.forms import DirectEmailSendingForm, DirectSmsSendingForm
+from users.importexport import UserResource
+from users.models import User
+from users.utils import direct_message_action_for_admin
 
 
 class UserCreationForm(forms.ModelForm):
@@ -157,6 +164,8 @@ class UserDataWidget(forms.Widget):
 
 @admin.register(User)
 class UserAdmin(UserAdmin, ImportExportModelAdmin):
+    change_form_template = 'admin/users/change_form.html'
+    direct_email_or_sms_template = 'admin/users/direct_email_or_sms.html'
     list_display = ['id', 'email', 'phone', 'date_joined', 'last_login', 'is_superuser', 'is_staff', 'is_therapist',
                     'is_active', 'get_first_program']
     search_fields = ['id', 'email', 'phone', 'secondary_phone', 'data']
@@ -280,7 +289,32 @@ class UserAdmin(UserAdmin, ImportExportModelAdmin):
         obj.secondary_phone = '0'
         obj.save()
 
-    resource_classes = (UserResource, )
+    resource_classes = (UserResource,)
+
+    def get_urls(self):
+        return [
+            path('<int:pk>/send-email/', self.send_direct_email, name='users_user_send_direct_email'),
+            path('<int:pk>/send-sms/', self.send_direct_sms, name='users_user_send_direct_sms'),
+        ] + super().get_urls()
+
+    # Copied from django user admin
+    def send_direct_email(self, request, pk, form_url=""):
+        user = self.get_object(request, pk)
+        title = _("Send Email To: %s") % escape(user.get_username())
+        success_message = _("Email sent successfully to %(email)s.") % {'email': user.email}
+        failure_message = _("Failed sending email to %(email)s.") % {'email': user.email}
+        send_action_value = _("Send Email")
+        return direct_message_action_for_admin(self, request, user, form_url, DirectEmailSendingForm, title,
+                                               success_message, failure_message, send_action_value)
+
+    def send_direct_sms(self, request, pk, form_url=""):
+        user = self.get_object(request, pk)
+        title = _("Send SMS To: %s") % escape(user.get_username())
+        success_message = _("SMS sent successfully to %(phone)s.") % {'phone': user.phone or user.secondary_phone}
+        failure_message = _("Failed sending SMS to %(phone)s.") % {'phone': user.phone or user.secondary_phone}
+        send_action_value = _("Send SMS")
+        return direct_message_action_for_admin(self, request, user, form_url, DirectSmsSendingForm, title,
+                                               success_message, failure_message, send_action_value, check_phone=True)
 
     class Media(object):
         css = {

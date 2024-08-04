@@ -1,0 +1,12 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block object-tools %}
+  <div class="object-tools">
+    {% block object-tools-items %}
+        {{ block.super }}
+        <li class="list-item"><a class="btn btn-secondary w-100" href="{% url 'admin:users_user_send_direct_sms' object_id %}">{% trans "SMS User" %}</a></li>
+        <li class="list-item"><a class="btn btn-secondary w-100" href="{% url 'admin:users_user_send_direct_email' object_id %}">{% trans "Email User" %}</a></li>
+    {% endblock %}
+  </div>
+{% endblock %}

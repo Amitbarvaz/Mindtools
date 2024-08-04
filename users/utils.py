@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib import messages
 from django.contrib.admin.helpers import AdminForm
 from django.contrib.admin.options import IS_POPUP_VAR
@@ -8,9 +10,13 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.utils.translation import gettext_lazy as _
 
+from events.signals import log_event
+
+logger = logging.getLogger("debug")
+
 
 def direct_message_action_for_admin(modeladmin, request, user, form_url, FormClass, title,
-                                    success_message, failure_message, send_action_value, check_phone=False, ):
+                                    success_message, failure_message, send_action_value, check_phone=False):
     if not modeladmin.has_change_permission(request, user):
         raise PermissionDenied
     if user is None:
@@ -47,6 +53,20 @@ def direct_message_action_for_admin(modeladmin, request, user, form_url, FormCla
             successful_result = form.save()
             if successful_result:
                 messages.success(request, success_message)
+                sent_media = 'email' if not check_phone else 'phone'
+                log_event.send(
+                    user,
+                    domain='directmessaging',
+                    actor=request.user,
+                    variable=sent_media,
+                    pre_value='',
+                    post_value=request.POST.get("body", "")
+                )
+
+                logger.debug(
+                    'user: %s sent %s to user - %s through direct messaging',
+                    user, sent_media, request.user
+                )
             else:
                 messages.error(request, failure_message)
             return HttpResponseRedirect(

@@ -15,6 +15,8 @@ from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.utils.translation import gettext_lazy as _
+
+from system.utils import remove_comments, variable_replace
 from users.widgets import CharacterCountTextarea
 
 from content.widgets import EmailDataContentWidget
@@ -108,7 +110,15 @@ class DirectEmailSendingForm(forms.Form):
         User = get_user_model()
         try:
             user = User.objects.get(email__iexact=self.cleaned_data['email'])
-            return user.send_email(subject=self.cleaned_data.get("subject"), html_message=self.cleaned_data.get("body"))
+            message = self.cleaned_data.get("body")
+            message = remove_comments(message)
+            message = variable_replace(user, message)
+            first_program = user.get_first_program()
+            if first_program and first_program.is_rtl:
+                p_tag = '<p>'
+                p_rtl_tag = '<p dir="rtl">'
+                message = message.replace(p_tag, p_rtl_tag)
+            return user.send_email(subject=self.cleaned_data.get("subject"), html_message=message)
         except:
             return False
 
@@ -130,7 +140,10 @@ class DirectSmsSendingForm(forms.Form):
         User = get_user_model()
         try:
             user = User.objects.get(id=self.cleaned_data['user_id'])
-            return user.send_sms(message=self.cleaned_data.get("body"),
+            message = self.cleaned_data.get("body")
+            message = remove_comments(message)
+            message = variable_replace(user, message)
+            return user.send_sms(message=message,
                                  is_whatsapp=self.cleaned_data.get("is_whatsapp"))
         except:
             return False

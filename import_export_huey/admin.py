@@ -92,6 +92,7 @@ class ExportJobAdmin(JobWithStatusMixin, admin.ModelAdmin):
         "model",
         "app_label",
         "file_download",
+        "file_size",
         "job_status_info",
         "author",
         "updated_by",
@@ -119,3 +120,8 @@ class ExportJobAdmin(JobWithStatusMixin, admin.ModelAdmin):
     def file_download(self, obj: ExportJob):
         return mark_safe(f'<a href="{obj.file.url}" download>{obj.file.url.split("/")[-1]}</a>') \
             if obj.file and "complete" in obj.job_status else ""
+
+    @admin.display(description=_("File Size"))
+    def file_size(self, obj: ExportJob):
+        from django.template.defaultfilters import filesizeformat
+        return filesizeformat(obj.file.size) if obj.file else ""

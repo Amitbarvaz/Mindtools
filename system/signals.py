@@ -6,6 +6,7 @@ import re
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
+from django.core.management import call_command
 from django.db import IntegrityError, transaction
 from django.db.models import signals
 from django.dispatch import receiver
@@ -391,6 +392,11 @@ def move_autoincrement_pointers_after_program_import(model, **kwargs):
                 break
 
 
+@receiver(post_import, dispatch_uid="create_initial_revisions_after_importing")
+def create_initial_revisions_after_importing(model, **kwargs):
+    call_command("createinitialrevisions")
+
+
 # These aren't connected by default on purpose, they are used in program_import_export.py
 @disable_for_loaddata
 def decorated_content_post_save(sender, **kwargs):
@@ -400,6 +406,7 @@ def decorated_content_post_save(sender, **kwargs):
 @disable_for_loaddata
 def decorated_add_content_relations(sender, **kwargs):
     add_content_relations(sender, **kwargs)
+
 
 @disable_for_loaddata
 def decorated_reschedule_session(sender, **kwargs):

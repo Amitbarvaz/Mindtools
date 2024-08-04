@@ -12,6 +12,7 @@ from huey.contrib.djhuey import task
 from import_export.signals import post_import
 
 from system.application_services import ProgramExportHandler
+from system.application_services.program_import import ProgramImportHandler
 from system.models import Program
 from . import models
 from .model_config import ModelConfig
@@ -40,6 +41,13 @@ def get_format(job):
 
 
 def _run_import_job(import_job, dry_run=True):
+    if import_job.model in ["Program", "program"]:
+        change_job_status(import_job, "import", "Program import started", dry_run)
+        result = ProgramImportHandler(import_job.file.path).run_import(dry_run=dry_run)
+        change_job_status(import_job, "import", result, dry_run)
+        if not dry_run:
+            post_import.send(sender=None, model=Program)
+        return
     change_job_status(import_job, "import", "1/5 Import started", dry_run)
     if dry_run:
         import_job.errors = ""

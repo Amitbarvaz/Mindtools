@@ -400,3 +400,7 @@ def decorated_content_post_save(sender, **kwargs):
 @disable_for_loaddata
 def decorated_add_content_relations(sender, **kwargs):
     add_content_relations(sender, **kwargs)
+
+@disable_for_loaddata
+def decorated_reschedule_session(sender, **kwargs):
+    reschedule_session(sender, **kwargs)

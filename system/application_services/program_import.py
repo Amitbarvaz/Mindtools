@@ -400,9 +400,11 @@ class ProgramImportHandler:
         # We aren't selecting for update here, but we are assuming that no new folders will be uploaded...
         # TODO: Probably should protect/fix this
         latest_folder_pk = 1
-        latest_folder = Folder.objects.latest("pk")
-        if latest_folder:
+        try:
+            latest_folder = Folder.objects.latest("pk")
             latest_folder_pk = latest_folder.pk + 1
+        except Folder.DoesNotExist:
+            pass
         for folder in self.folders_fixtures:
             self.pk_mapping_dict[self.FOLDERS][folder.get("pk")] = latest_folder_pk
             folder["pk"] = latest_folder_pk
@@ -431,9 +433,11 @@ class ProgramImportHandler:
         # We aren't selecting for update here, but we are assuming that no new files will be uploaded...
         # TODO: Probably should protect/fix this
         latest_file_pk = 1
-        latest_file = File.objects.latest("pk")
-        if latest_file:
+        try:
+            latest_file = File.objects.latest("pk")
             latest_file_pk = latest_file.pk + 1
+        except File.DoesNotExist:
+            pass
 
         with open(self.file_path, "r") as fp:
             all_files = ijson.items(fp, "files.item")

@@ -1,0 +1,167 @@
+{# mainly taken from -  https://github.com/shubhamkshatriya25/Django-AJAX-File-Uploader/ - with small tweaks #}
+{% load i18n %}
+<style>
+    #myProgress {
+        width: 100%;
+    }
+
+    #uploaded_files {
+        margin-top: 25px;
+        display: flex;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    .file-icon i {
+        font-size: 60px;
+        color: rgb(0, 0, 0);
+    }
+
+    .file-details {
+        margin-top: -2px;
+        padding-left: 10px;
+        width: 100%;
+    }
+
+    .file-details p {
+        margin-bottom: -7px;
+    }
+
+    small {
+        margin-top: 0;
+        color: black;
+    }
+</style>
+<form enctype="multipart/form-data" method="POST" action="" style="text-align: center;">
+    {% csrf_token %}
+    <div class="form-group" id="temp-file-form-div">
+        <label for="{{ widget.attrs.id }}">{% trans 'Select file to upload.' %}</label><br/>
+        <input type="file" name="{{ widget.name }}" {% if widget.attrs %}{% for attr_name, attr_value in widget.attrs.items %} {{ attr_name }}="{{ attr_value }}"
+{% endfor %} {% endif %} placeholder="Select file">
+    </div>
+    <br/>
+    <input type="submit" value="Upload" id="submit-file" class="btn btn-success">
+</form>
+<div id="uploaded_files"></div>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        django.jQuery(".submit-row").css("pointer-events", "none").css("opacity", "0.5")
+    })
+
+    class FileUpload {
+
+        constructor(input) {
+            this.input = input
+            this.max_length = 1024 * 1024 * 10;
+        }
+
+        create_progress_bar() {
+            var progress = `<div class="file-icon">
+                            <i class="fa fa-file-o" aria-hidden="true"></i>
+                        </div>
+                        <div class="file-details">
+                            <p class="filename"></p>
+                            <small class="textbox"></small>
+                            <div class="progress" style="margin-top: 5px;">
+                                <div class="progress-bar bg-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                                </div>
+                            </div>
+                        </div>`
+            document.getElementById('uploaded_files').innerHTML = progress
+        }
+
+        upload() {
+            this.create_progress_bar();
+            this.initFileUpload();
+        }
+
+        initFileUpload() {
+            this.file = this.input.files[0];
+            this.upload_file(0, null);
+        }
+
+        //upload file
+        upload_file(start, model_id) {
+            var end;
+            var self = this;
+            var existingPath = model_id;
+            var formData = new FormData();
+            var nextChunk = start + this.max_length + 1;
+            var currentChunk = this.file.slice(start, nextChunk);
+            var uploadedChunk = start + currentChunk.size
+            if (uploadedChunk >= this.file.size) {
+                end = 1;
+            } else {
+                end = 0;
+            }
+            formData.append('file', currentChunk)
+            formData.append('filename', this.file.name)
+            django.jQuery('.filename').text(this.file.name)
+            django.jQuery('.textbox').text("Uploading file")
+            formData.append('end', end)
+            formData.append('existingPath', existingPath);
+            formData.append('nextSlice', nextChunk);
+            django.jQuery.ajaxSetup({
+                headers: {
+                    "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value,
+                }
+            });
+            django.jQuery.ajax({
+                xhr: function () {
+                    var xhr = new XMLHttpRequest();
+                    xhr.upload.addEventListener('progress', function (e) {
+                        if (e.lengthComputable) {
+                            if (self.file.size < self.max_length) {
+                                var percent = Math.round((e.loaded / e.total) * 100);
+                            } else {
+                                var percent = Math.round((uploadedChunk / self.file.size) * 100);
+                            }
+                            django.jQuery('.progress-bar').css('width', percent + '%')
+                            django.jQuery('.progress-bar').text(percent + '%')
+                        }
+                    });
+                    return xhr;
+                },
+
+                url: '{% url 'ajax_file_upload' %}',
+                type: 'POST',
+                dataType: 'json',
+                cache: false,
+                processData: false,
+                contentType: false,
+                data: formData,
+                error: function (xhr) {
+                    console.log(xhr)
+                    document.getElementById('uploaded_files').innerHTML = ""
+                    alert(xhr.statusText);
+                },
+                success: function (res) {
+                    if (nextChunk < self.file.size) {
+                        // upload file in chunks
+                        existingPath = res.existingPath
+                        self.upload_file(nextChunk, existingPath);
+                    } else {
+                        // upload complete
+                        django.jQuery('.textbox').text(res.data);
+                        django.jQuery('#{{ widget.attrs.id }}').attr("type", "text").attr("value", res.existingPath)
+                        django.jQuery('#temp-file-form-div').hide()
+                        django.jQuery('#submit-file').hide()
+                        django.jQuery(".submit-row").css("pointer-events", "").css("opacity", "1")
+                    }
+                }
+            });
+        };
+    }
+
+    (function ($) {
+        django.jQuery('#submit-file').on('click', (event) => {
+            event.preventDefault();
+            var uploader = new FileUpload(document.querySelector('#{{ widget.attrs.id }}'))
+            console.log(document.querySelector('#{{ widget.attrs.id }}'));
+            uploader.upload();
+        });
+    })(django.jQuery);
+
+</script>

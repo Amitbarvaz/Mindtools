@@ -1,4 +1,5 @@
 # Copyright (C) 2019 o.s. Auto*Mat
+
 from django import forms
 from django.conf import settings
 from django.contrib import admin
@@ -8,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from . import admin_actions, models
 from .models import ExportJob
+from .widgets import CustomAjaxFileUploadWidget
 
 
 class JobWithStatusMixin:
@@ -28,6 +30,8 @@ class ImportJobForm(forms.ModelForm):
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
+        if not kwargs.get("instance"):
+            self.base_fields["file"] = forms.Field(label=_("File to be imported"), widget=CustomAjaxFileUploadWidget)
         super().__init__(*args, **kwargs)
         self.fields["model"].choices = [
             (x, x) for x in getattr(settings, "IMPORT_EXPORT_HUEY_MODELS", {}).keys()

@@ -2,24 +2,27 @@
 
 from __future__ import absolute_import, unicode_literals
 
-from builtins import str
+import logging
+import re
 import textwrap
+from builtins import str
 
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.core.cache import cache
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from rest_framework import viewsets
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Program, Variable
-from .serializers import VariableSerializer, ExpressionSerializer
 from .filters import VariableSearchFilter
-
-import re
+from .models import Program, Variable
+from .serializers import ExpressionSerializer, VariableSerializer
 
 
 @staff_member_required
@@ -107,8 +110,10 @@ def export_text(request):
                         data += format_content(content, index, 'content', 'label', value=pagelet['content']['label'])
 
                         for i, item in enumerate(pagelet['content']['alternatives']):
-                            data += format_content(content, index, 'content', 'alternatives', str(i), 'label', value=item['label'])
-                            data += format_content(content, index, 'content', 'alternatives', str(i), 'text', value=item['text'])
+                            data += format_content(content, index, 'content', 'alternatives', str(i), 'label',
+                                                   value=item['label'])
+                            data += format_content(content, index, 'content', 'alternatives', str(i), 'text',
+                                                   value=item['text'])
 
                     if pagelet['content_type'] == 'conditionalset':
                         for i, item in enumerate(pagelet['content']):
@@ -118,26 +123,33 @@ def export_text(request):
                         for i, item in enumerate(pagelet['content']):
 
                             if item['field_type'] in ['numeric', 'string', 'text']:
-                                data += format_content(content, index, 'content', str(i), 'label', value=item['label'] or ' ')
+                                data += format_content(content, index, 'content', str(i), 'label',
+                                                       value=item['label'] or ' ')
 
                             if item['field_type'] == 'multiplechoice':
-                                data += format_content(content, index, 'content', str(i), 'label', value=item['label'] or ' ')
+                                data += format_content(content, index, 'content', str(i), 'label',
+                                                       value=item['label'] or ' ')
                                 for j, alt in enumerate(item['alternatives']):
-                                    data += format_content(content, index, 'content', str(i), 'alternatives', str(j), 'label', value=alt['label'])
+                                    data += format_content(content, index, 'content', str(i), 'alternatives', str(j),
+                                                           'label', value=alt['label'])
 
                             if item['field_type'] == 'multipleselection':
-                                data += format_content(content, index, 'content', str(i), 'label', value=item['label'] or ' ')
+                                data += format_content(content, index, 'content', str(i), 'label',
+                                                       value=item['label'] or ' ')
                                 for j, alt in enumerate(item['alternatives']):
-                                    data += format_content(content, index, 'content', str(i), 'alternatives', str(j), 'label', value=alt['label'])
+                                    data += format_content(content, index, 'content', str(i), 'alternatives', str(j),
+                                                           'label', value=alt['label'])
 
                     if pagelet['content_type'] == 'quiz':
                         for i, item in enumerate(pagelet['content']):
-                            data += format_content(content, index, 'content', str(i), 'question', value=item['question'])
+                            data += format_content(content, index, 'content', str(i), 'question',
+                                                   value=item['question'])
                             data += format_content(content, index, 'content', str(i), 'right', value=item['right'])
                             data += format_content(content, index, 'content', str(i), 'wrong', value=item['wrong'])
 
                             for j, alt in enumerate(item['alternatives']):
-                                data += format_content(content, index, 'content', str(i), 'alternatives', str(j), 'label', value=alt['label'])
+                                data += format_content(content, index, 'content', str(i), 'alternatives', str(j),
+                                                       'label', value=alt['label'])
 
         # Variables should be included if translation of name, display_name, value etc. are needed
         # this requires corresponding routines to copy Variables on Program copy
@@ -262,11 +274,11 @@ def set_stylesheet(request):
 
 
 def redirect_media(request, path):
-    return HttpResponseRedirect('https://s3.eu-central-1.amazonaws.com/%s/%s' % (settings.AWS_STORAGE_BUCKET_NAME, path))
+    return HttpResponseRedirect(
+        'https://s3.eu-central-1.amazonaws.com/%s/%s' % (settings.AWS_STORAGE_BUCKET_NAME, path))
 
 
 class VariableViewSet(viewsets.ModelViewSet):
-
     queryset = Variable.objects.all().order_by("name")
     serializer_class = VariableSerializer
 
@@ -282,7 +294,6 @@ class VariableViewSet(viewsets.ModelViewSet):
 
 
 class VariableSearchViewSet(viewsets.ModelViewSet):
-
     queryset = Variable.objects.all().order_by("name")
     serializer_class = VariableSerializer
     filter_backends = [VariableSearchFilter]
@@ -328,3 +339,53 @@ class ExpressionViewSet(CreateModelMixin, viewsets.ViewSet):
         serializer_class = self.serializer_class
         kwargs['context'] = self.get_serializer_context()
         return serializer_class(*args, **kwargs)
+
+
+@staff_member_required
+def handle_ajax_file_upload(request):
+    if request.method == 'POST':
+        file = request.FILES['file'].read()
+        fileName = request.POST['filename']
+        existingPath = request.POST['existingPath']
+        end = bool(int(request.POST['end']))
+        nextSlice = request.POST['nextSlice']
+
+        if file == "" or fileName == "" or existingPath == "" or end == "" or nextSlice == "":
+            res = JsonResponse({'data': 'Invalid Request'})
+            return res
+        else:
+            if existingPath == 'null':
+                logger = logging.getLogger("debug")
+                path = settings.MEDIA_ROOT / "django-import-export-huey-import-jobs" / f'{timezone.now().strftime("%Y%m%d%H%M%S")}_{fileName}'
+                path = str(path)
+                logger.debug(f"uploading file to {path}")
+                with open(path, 'wb+') as destination:
+                    destination.write(file)
+
+                cache.set(path.replace(" ", "_"), {"name": fileName, "eof": end})
+                if end:
+                    res = JsonResponse({'data': 'Uploaded Successfully', 'existingPath': path})
+                else:
+                    res = JsonResponse({'existingPath': path})
+                return res
+
+            else:
+                file_cached_data = cache.get(existingPath.replace(" ", "_"))
+                if file_cached_data.get("name") == fileName:
+                    if not file_cached_data.get("eof"):
+                        with open(existingPath, 'ab+') as destination:
+                            destination.write(file)
+                        if end:
+                            cache.set(str(existingPath), {"name": fileName, "eof": end})
+                            res = JsonResponse(
+                                {'data': 'Uploaded Successfully', 'existingPath': existingPath})
+                        else:
+                            res = JsonResponse({'existingPath': existingPath})
+                        return res
+                    else:
+                        res = JsonResponse({'data': 'EOF found. Invalid request'})
+                        return res
+                else:
+                    res = JsonResponse({'data': 'No such file exists in the existingPath'})
+                    return res
+    return redirect(reverse("admin:import_export_huey_importjob_changelist"))

@@ -57,10 +57,10 @@ def direct_message_action_for_admin(modeladmin, request, user, form_url, FormCla
                 log_event.send(
                     user,
                     domain='directmessaging',
-                    actor=request.user,
+                    actor=user,
                     variable=sent_media,
                     pre_value='',
-                    post_value=request.POST.get("body", "")
+                    post_value=f"User: {request.user} sent: " + str(request.POST.get("body", ""))
                 )
 
                 logger.debug(

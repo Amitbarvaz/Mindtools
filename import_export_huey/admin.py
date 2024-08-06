@@ -72,6 +72,12 @@ class ImportJobAdmin(JobWithStatusMixin, admin.ModelAdmin):
         admin_actions.run_import_job_action_dry,
     )
 
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = super().get_readonly_fields(request, obj)
+        if obj:
+            readonly_fields = ("file",) + readonly_fields
+        return readonly_fields
+
 
 class ExportJobForm(forms.ModelForm):
     class Meta:

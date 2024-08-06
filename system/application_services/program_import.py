@@ -111,7 +111,10 @@ class ProgramImportHandler:
             objects = ijson.items(file, "files.item")
             for obj in objects:
                 file_sizes.append(int(obj.get("fields", {}).get("_file_size", 0)))
-        max_file_size = max(file_sizes)
+        if file_sizes:
+            max_file_size = max(file_sizes)
+        else:
+            max_file_size = 0
         buffer = (max_file_size + approx_total_size_except_files) * 0.05
         if max_file_size + approx_total_size_except_files + buffer > available_memory:
             raise NotEnoughMemory(f"Current implementation requires more memory than available: "

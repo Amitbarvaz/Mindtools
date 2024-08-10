@@ -92,7 +92,8 @@ class ProgramExportHandler:
 
     def _export_variables(self):
         self._start_object("variables")
-        qs = Variable.objects.filter(name__in=self.main_data[self.RELEVANT_VARIABLE_NAMES_LIST_KEY]).distinct()
+        variable_ids = ProgramGoldVariable.objects.filter(program=self.program).values_list("variable", flat=True).distinct()
+        qs = Variable.objects.filter(Q(name__in=self.main_data[self.RELEVANT_VARIABLE_NAMES_LIST_KEY]) | Q(program=self.program) | Q(id__in=variable_ids)).distinct()
         data = json.loads(
             serializers.serialize('json', qs, use_natural_primary_keys=True, use_natural_foreign_keys=True))
         for item in data:
@@ -160,6 +161,13 @@ class ProgramExportHandler:
             self.RELEVANT_VARIABLE_NAMES_LIST_KEY: set()
         }
 
+        def get_variable_names_from_string_content(value):
+            for match in re.findall(self.VARIABLE_PATTERN, value):
+                main_data[self.RELEVANT_VARIABLE_NAMES_LIST_KEY].add(match.replace("$", ""))
+            for match in re.findall(self.VARIABLE_PATTERN_INSIDE_CONTENT, value):
+                main_data[self.RELEVANT_VARIABLE_NAMES_LIST_KEY].add(
+                        match.replace("{", "").replace("}", "").strip())
+
         def extract_data_from_content_dicts(temp_data):
             """
             This method extracts data from content data dictionaries by iterating over them recursively.
@@ -167,22 +175,21 @@ class ProgramExportHandler:
             """
             for key, value in temp_data.items():
                 if isinstance(value, dict):
-                    return extract_data_from_content_dicts(value)
+                    extract_data_from_content_dicts(value)
                 elif isinstance(value, list):
                     for item in value:
                         if isinstance(item, dict):
-                            return extract_data_from_content_dicts(item)
+                            extract_data_from_content_dicts(item)
                         else:
-                            return extract_data_from_content_dicts({key: item})
+                            extract_data_from_content_dicts({key: item})
                 elif key == "file_id" and value:
                     main_data[self.FILE_LIST_IDS_KEY].add(int(value))
-                    return
                 elif key in ["variable_name", "var_name"]:
                     main_data[self.RELEVANT_VARIABLE_NAMES_LIST_KEY].add(value)
                 elif key == "variables" and isinstance(temp_data[key], dict):
                     for variable in temp_data[key].keys():
                         main_data[self.RELEVANT_VARIABLE_NAMES_LIST_KEY].add(variable)
-                elif key == "expression" or (key in ["value", "content"] and isinstance(value, str)):
+                elif key == "expression" or (key in ["value", "content", "label", "text"] and isinstance(value, str)):
                     for match in re.findall(self.VARIABLE_PATTERN, value):
                         main_data[self.RELEVANT_VARIABLE_NAMES_LIST_KEY].add(match.replace("$", ""))
                     for match in re.findall(self.VARIABLE_PATTERN_INSIDE_CONTENT, value):
@@ -201,13 +208,13 @@ class ProgramExportHandler:
             """
             for key, value in temp_data.items():
                 if isinstance(value, dict):
-                    return extract_data_from_session_dicts(value)
+                    extract_data_from_session_dicts(value)
                 elif isinstance(value, list):
                     for item in value:
                         if isinstance(item, dict):
-                            return extract_data_from_session_dicts(item)
+                            extract_data_from_session_dicts(item)
                         else:
-                            return extract_data_from_session_dicts({key: item})
+                            extract_data_from_session_dicts({key: item})
                 elif key in ["variable_name", "var_name", "variable"]:
                     main_data[self.RELEVANT_VARIABLE_NAMES_LIST_KEY].add(value)
                 elif key == "variables" and isinstance(temp_data[key], dict):

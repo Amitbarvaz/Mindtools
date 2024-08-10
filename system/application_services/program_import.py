@@ -230,9 +230,9 @@ class ProgramImportHandler:
                 self._iterate_dict_keys_and_update_key_with_value([self.GOLD_VARIABLES], "variable",
                                                                   new_variable_name, old_variable_name)
                 self._iterate_data_and_replace_old_value_with_new_value([self.SESSIONS, self.CONTENTS],
-                                                                        ["variable", "expression", "value",
+                                                                        ["variable", "expression", "value", "alternatives",
                                                                          "variable_name", "var_name", "content",
-                                                                         "variables"],
+                                                                         "variables", "label", "text"],
                                                                         new_variable_name, old_variable_name)
 
     def _handle_contents(self):
@@ -300,6 +300,7 @@ class ProgramImportHandler:
 
     def _iterate_data_and_replace_old_value_with_new_value(self, fixture_keys, dict_keys, new_value, old_value,
                                                            special_condition=None):
+        # TODO: think about using recursion cuz not all the options aren't documented
         """
         We chose not to use recursion to be more verbose
         1. go into the fixture and load the data as a python object

@@ -5,7 +5,7 @@ from django.utils import translation
 from django.utils.functional import SimpleLazyObject
 from django.contrib.auth.middleware import AuthenticationMiddleware
 from django_ratelimit import ALL, UNSAFE
-from django_ratelimit.core import is_ratelimited
+from django_ratelimit.core import is_ratelimited, _get_ip
 
 from system.models import Session
 
@@ -75,11 +75,17 @@ class RateLimitMiddleware:
     def __call__(self, request):
         # Code to be executed for each request before
         # the view (and later middleware) are called.
+        import logging
+        logger = logging.getLogger("debug")
+        ip = _get_ip(request)
         if is_ratelimited(request, group='post_by_user', key='user_or_ip', method=UNSAFE, rate='90/m', increment=False):
+            logger.debug(f"request was rate limited by post for ip {ip}")
             raise Http404
         elif is_ratelimited(request, group='all', key='user_or_ip', rate='50/s', method=ALL, increment=True):
+            logger.debug(f"request was rate limited by get (s) for ip {ip}")
             raise Http404
         elif is_ratelimited(request, group='all', key='user_or_ip', rate='10000/d', method=ALL, increment=True):
+            logger.debug(f"request was rate limited by get (d) for ip {ip}")
             raise Http404
         else:
             return self.get_response(request)

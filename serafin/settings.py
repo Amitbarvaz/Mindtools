@@ -622,6 +622,24 @@ class Base(Configuration):
 
     IMPORT_EXPORT_HUEY_EXCLUDED_FORMATS = ["csv", "xls", "xlsx", "tsv", "yaml", "ods"]
 
+    
+    @property
+    def CACHES(self):
+        return {
+            "default": {
+                "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            },
+            "ratelimit-cache": {
+                "BACKEND": "django.core.cache.backends.redis.RedisCache",
+                "LOCATION": 'redis://:' + self.CONSTANCE_REDIS_CONNECTION['password'] + '@' + self.CONSTANCE_REDIS_CONNECTION[
+            'host'] + ':' + str(self.CONSTANCE_REDIS_CONNECTION['port']) \
+            + '/1'
+            }
+    }
+
+    RATELIMIT_USE_CACHE = 'ratelimit-cache'
+    RATELIMIT_IP_META_KEY = 'defender.utils.get_ip' # using existing logic
+
 
 class Development(Base):
     DEBUG = True

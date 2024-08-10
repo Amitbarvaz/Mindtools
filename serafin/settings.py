@@ -670,6 +670,17 @@ class Development(Base):
     DEFENDER_REDIS_URL = 'redis://' + CONSTANCE_REDIS_CONNECTION['host'] + ':' + str(CONSTANCE_REDIS_CONNECTION['port']) \
                          + '/0'
 
+        CACHES = {
+            "default": {
+                "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            },
+            "ratelimit-cache": {
+                "BACKEND": "django.core.cache.backends.redis.RedisCache",
+                "LOCATION": 'redis://' + CONSTANCE_REDIS_CONNECTION['host'] + ':' + str(CONSTANCE_REDIS_CONNECTION['port']) \
+                         + '/1'
+            }
+    }
+    
     TRUST_PRIVATE_IP = True
     USE_HTTPS = False
     SECURE_SSL_REDIRECT = False

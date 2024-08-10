@@ -356,8 +356,7 @@ def handle_ajax_file_upload(request):
         else:
             if existingPath == 'null':
                 logger = logging.getLogger("debug")
-                path = settings.MEDIA_ROOT / f'django-import-export-huey-import-jobs/{timezone.now().strftime("%Y%m%d%H%M%S")}_{fileName}'
-                path = str(path)
+                path = os.path.join(settings.MEDIA_ROOT, "django-import-export-huey-import-jobs", f'{timezone.now().strftime("%Y%m%d%H%M%S")}_{fileName}')
                 logger.debug(f"uploading file to {path}")
                 with open(path, 'wb+') as destination:
                     destination.write(file)

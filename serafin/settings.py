@@ -634,6 +634,12 @@ class Base(Configuration):
                 "LOCATION": 'redis://:' + self.CONSTANCE_REDIS_CONNECTION['password'] + '@' + self.CONSTANCE_REDIS_CONNECTION[
             'host'] + ':' + str(self.CONSTANCE_REDIS_CONNECTION['port']) \
             + '/1'
+            },
+            "ajax-upload": {
+                "BACKEND": "django.core.cache.backends.redis.RedisCache",
+                "LOCATION": 'redis://:' + self.CONSTANCE_REDIS_CONNECTION['password'] + '@' + self.CONSTANCE_REDIS_CONNECTION[
+            'host'] + ':' + str(self.CONSTANCE_REDIS_CONNECTION['port']) \
+            + '/2'
             }
     }
 
@@ -678,6 +684,11 @@ class Development(Base):
                 "BACKEND": "django.core.cache.backends.redis.RedisCache",
                 "LOCATION": 'redis://' + CONSTANCE_REDIS_CONNECTION['host'] + ':' + str(CONSTANCE_REDIS_CONNECTION['port']) \
                          + '/1'
+            },
+                        "ajax-upload": {
+                "BACKEND": "django.core.cache.backends.redis.RedisCache",
+                "LOCATION": 'redis://' + CONSTANCE_REDIS_CONNECTION['host'] + ':' + str(CONSTANCE_REDIS_CONNECTION['port']) \
+                         + '/2'
             }
     }
     
@@ -728,7 +739,12 @@ class Testing(Base):
                 "BACKEND": "django.core.cache.backends.redis.RedisCache",
                 "LOCATION": 'redis://' + CONSTANCE_REDIS_CONNECTION['host'] + ':' + str(CONSTANCE_REDIS_CONNECTION['port']) \
                          + '/1'
-            }
+            },
+                        "ajax-upload": {
+                "BACKEND": "django.core.cache.backends.redis.RedisCache",
+                "LOCATION": 'redis://' + CONSTANCE_REDIS_CONNECTION['host'] + ':' + str(CONSTANCE_REDIS_CONNECTION['port']) \
+                        }
+                 
     }
 
 

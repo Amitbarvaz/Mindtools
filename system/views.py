@@ -11,7 +11,7 @@ from builtins import str
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.contenttypes.models import ContentType
-from django.core.cache import cache
+from django.core.cache import caches
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -344,6 +344,7 @@ class ExpressionViewSet(CreateModelMixin, viewsets.ViewSet):
 
 @staff_member_required
 def handle_ajax_file_upload(request):
+    cache = caches['ajax-upload']
     if request.method == 'POST':
         file = request.FILES['file'].read()
         fileName = request.POST['filename']
@@ -361,8 +362,8 @@ def handle_ajax_file_upload(request):
                 logger.debug(f"uploading file to {path}")
                 with open(path, 'wb+') as destination:
                     destination.write(file)
-
-                cache.set(path.replace(" ", "_"), {"name": fileName, "eof": end})
+                cache_key = path.replace(" ", "_") 
+                cache.set(cache_key, {"name": fileName, "eof": end}, timeout=None)
                 if end:
                     res = JsonResponse({'data': 'Uploaded Successfully', 'existingPath': path})
                 else:
@@ -370,13 +371,14 @@ def handle_ajax_file_upload(request):
                 return res
 
             else:
-                file_cached_data = cache.get(existingPath.replace(" ", "_"))
+                cache_key = existingPath.replace(" ", "_")
+                file_cached_data = cache.get(cache_key)
                 if file_cached_data.get("name") == fileName:
                     if not file_cached_data.get("eof"):
                         with open(existingPath, 'ab+') as destination:
                             destination.write(file)
                         if end:
-                            cache.set(str(existingPath), {"name": fileName, "eof": end})
+                            cache.set(cache_key, {"name": fileName, "eof": end}, timeout=3600)
                             res = JsonResponse(
                                 {'data': 'Uploaded Successfully', 'existingPath': existingPath})
                         else:

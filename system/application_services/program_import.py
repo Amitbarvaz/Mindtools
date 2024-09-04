@@ -525,9 +525,9 @@ class ProgramImportHandler:
                 for node in nodes:
                     title = node.get('title')
                     node_type = node.get('type')
-                    if node_type in ['page', 'email', 'sms', 'session']:
+                    if node_type in ['page', 'email', 'sms', 'session', 'background_session']:
                         try:
-                            if node_type == 'session':
+                            if node_type in ['session', 'background_session']:
                                 ref_object = Session.objects.get(title=title)
                             else:
                                 ref_object = Content.objects.get(title=title)

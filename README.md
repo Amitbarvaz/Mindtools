@@ -1,7 +1,8 @@
 # Mindtools
 _Logic-driven web content creation kit_
 
-Mindtools source code is based on Serafin, is a Django-based web platform that gives content builders a set of flexible building blocks for creating logic-driven sites. Examples include:
+Mindtools source code is based on Serafin and was then upgraded in several steps. 
+It is a Django-based web platform that gives content builders a set of flexible building blocks for creating logic-driven sites. Examples include:
 
 - Web forms and questionaires
 - Self-help programs

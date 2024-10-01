@@ -16,7 +16,7 @@ Program flow is controlled on different levels. Sessions are built as a series o
 
 ## Getting started
 
-The preferred method for setting up Serafin for development is through docker-compose. A complete environment is provided, including PostgreSQL, Redis, and a Python container with a Django development server and a Huey task runner.
+The preferred method for setting up Mindtools for development is through docker-compose. A complete environment is provided, including PostgreSQL, Redis, and a Python container with a Django development server and a Huey task runner.
 
 Install [docker](https://docs.docker.com/engine/installation/) and [docker-compose](https://docs.docker.com/compose/install/).
 
@@ -41,13 +41,13 @@ You may run other Django management commands the same way.
 
 ## Contributing
 
-Serafin has seen work on and off for several years. While it has seen production use in its current state, it may not meet everyones standards of a well-packaged open source project. We intend to improve this. Preparing the system for general use, software dependency updates, test coverage and documentation will be prioritized. 
-
-See [issues](https://github.com/inonit/serafin/issues) or submit your own.
+Mindtools was last updated in the summer of 2024.
 
 Pull requests are welcome.
 
 
 ## License
 
-Copyright (C) 2018 Institute of Clinical Medicine, University of Oslo. All rights reserved. The source code for this project is licensed under the AGPL v3 license, see [LICENSE.txt](LICENSE.txt) for details.
+The source code for this project is licensed under the AGPL v3 license, see [LICENSE.txt](LICENSE.txt) for details.
+Original Serafin version Copyright (C) 2018 Institute of Clinical Medicine, University of Oslo. 
+All rights reserved. 

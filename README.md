@@ -60,5 +60,7 @@ Pull requests are welcome.
 ## License
 
 The source code for this project is licensed under the AGPL v3 license, see [LICENSE.txt](LICENSE.txt) for details.
+
 Original Serafin version Copyright (C) 2018 Institute of Clinical Medicine, University of Oslo. 
+Subsequent versions were developed by Gal Weizenberg and then DrorSoft used by University of Haifa.
 All rights reserved. 

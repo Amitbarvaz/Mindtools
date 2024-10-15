@@ -1,10 +1,10 @@
 # Mindtools
 _Logic-driven web content creation kit_
 
-Mindtools source code is based on Serafin and was then upgraded in several steps. 
+Mindtools source code is based on [Serafin](https://github.com/inonit/serafin) and was then upgraded in several steps[^1]. 
 It is a Django-based web platform that gives content builders a set of flexible building blocks for creating logic-driven sites. Examples include:
 
-- בWeb forms and questionaires
+- Web forms and questionaires
 - Self-help programs
 - E-learning programs
 - Dynamic websites with a complex underlying logic
@@ -27,32 +27,35 @@ Mindtools was then upgraded in several steps, by an independant contractor and t
 
 ## Getting started
 
-The preferred method for setting up Mindtools for development is through docker-compose. A complete environment is provided, including PostgreSQL, Redis, and a Python container with a Django development server and a Huey task runner.
+The preferred method for setting up Mindtools for development is through docker compose. A complete environment is provided, including PostgreSQL, Redis, and a Python container with a Django development server and a Huey task runner.
 
-Install [docker](https://docs.docker.com/engine/installation/) and [docker-compose](https://docs.docker.com/compose/install/).
+Install [docker](https://docs.docker.com/engine/installation/) with [docker compose](https://docs.docker.com/compose/install/).
 
-Run docker-compose to build the environment:
+Run docker compose to build the environment:
 
-    $ docker-compose up
+    $ docker compose up
 
 In a separate terminal, run database migrations (first time, but may be needed after model changes):
 
-    $ docker-compose exec app ./manage.py migrate 
+    $ docker compose exec app ./manage.py migrate 
 
 Create a local admin user (first time only):
 
-    $ docker-compose exec app ./manage.py createsuperuser
+    $ docker compose exec app ./manage.py createsuperuser
 
 Run tests with:
 
-    $ docker-compose exec app ./manage.py test
+    $ docker compose exec app ./manage.py test
 
 You may run other Django management commands the same way.
 
+Further reading about the project's content:
+- [Developer Extensive Readme](DevREADME.md) - with instructions on how to deploy, a reference to CI, and how to run the local dev server not through docker compose
+- [Original Modelling Logic Description](GlobalDescription_readme) - note this has not been updated yet, although some new features have been introduced
 
 ## Contributing
 
-Mindtools was last updated in the summer of 2024.
+Mindtools was last updated in the Summer of 2024.
 
 Pull requests are welcome.
 
@@ -64,3 +67,6 @@ The source code for this project is licensed under the AGPL v3 license, see [LIC
 Original Serafin version Copyright (C) 2018 Institute of Clinical Medicine, University of Oslo. 
 Subsequent versions were developed by Gal Weizenberg and then DrorSoft used by University of Haifa.
 All rights reserved. 
+
+
+[^1]: Because of some techincal issues while transferring the project between developers the git history was lost, the original project as written by Inonit can be found in their repo and the delta between the first commit in this repo and Inonit's repo is attributed to Gal Weizenberg

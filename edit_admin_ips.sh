@@ -33,7 +33,7 @@ else
         reset_app=0
 fi
 
-for (( i=2; i < "$#"; i++ )); do
+for (( i=2; i <= "$#"; i++ )); do
 
         if [ "${!i}" = "-r" ] || [ "${!i}" = "--range" ]; then
                 ip_without_last_seg="${ip%.*}"
@@ -95,7 +95,7 @@ new_ips="${new_ips}"
 
 if [ "$1" = "add" ] || [ "$1" = "remove" ]; then
         if [ $is_test -eq 0 ]; then
-                sed -i "s/$setting_key=.*/$setting_key=$new_ips/" $filename
+                sed -i "s/$setting_key=.*/$setting_key=${new_ips//\//\\/}/" $filename
                 echo Changed Settings
 
                 if [ $reset_app -eq 1 ]; then
